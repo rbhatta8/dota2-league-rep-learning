@@ -49,4 +49,29 @@ for match in matches['matches']:
      role_labels.append(match['role'])
 
 
+# get 10 match info first (50 gives too many request error)
+for match_id in match_ids[:-10]:
 
+     # get a match by IDs gathered from before
+     match = lol.get_match(match_id, include_timeline=True)
+
+     # get stats of each participant
+     participant_stats = match['participants']
+     
+     # print len(participant_stats)
+     # find the participantID for the desired player
+     #print match['participantIdentities']
+     for players in match['participantIdentities']:
+          print players['player']['summonerId'], desired_player_id
+          print players['player']['summonerName'], desired_player_name
+
+          # tried to check by summoner ID, this never seems to give a match
+          if players['player']['summonerId'] == desired_player_id:
+               print players['player']['summonerName']
+
+          # now checking by summoner name
+          if players['player']['summonerName'] == desired_player_name:
+               print players['player']['summonerName']
+
+     break
+     

@@ -1,0 +1,30 @@
+"""
+Script to fetch player match data
+using the Riot API
+
+authors : Azwad Sabik, Rohit Bhattacharya
+emails  : asabik
+"""
+
+from riotwatcher import RiotWatcher
+import pickle
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+
+with open('Veraxios_API_Key.txt', 'r') as f:
+     lol = RiotWatcher(f.read().strip())
+     
+desired_player_name = 'C9 Sneaky'     
+     
+challenger = lol.get_challenger()
+players = challenger['entries']
+for player in players:
+    if player['playerOrTeamName'] == desired_player_name:
+        desired_player = player
+
+desired_player_id = player['playerOrTeamId']
+
+matches = lol.get_match_list(desired_player_id, ranked_queues='RANKED_SOLO_5x5', 
+                         seasons='SEASON2015')
+                         

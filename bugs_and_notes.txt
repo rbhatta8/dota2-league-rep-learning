@@ -1,2 +1,1 @@
-- Azwad API may be out of date - seasons param is season for me
 - Seems like C9 Sneaky is not in most of the matches that were requested by match ID and also they seem from different seasons than from the requested season

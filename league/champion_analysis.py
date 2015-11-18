@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from sklearn import manifold
 from sklearn import decomposition
 
-with open('fuck_league_key.txt', 'r') as f:
+with open('Veraxios_API_Key.txt', 'r') as f:
      lol = RiotWatcher(f.read().strip())
      
 class Champion:
@@ -51,10 +51,6 @@ def get_champion_datapoints(champions):
         names.append(champion.name)
         tags.append(str(champion.tags[0]))
     return X, names, tags
-        
-def get_recent_games(ids = None):
-    matches_ids = []
-    
         
 # champions = get_champions()
 

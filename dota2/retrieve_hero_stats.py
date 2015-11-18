@@ -1,0 +1,62 @@
+"""
+Script to parse Dota 2 Hero stats from Valve's website
+
+authors : Rohit Bhattacharya, Azwad Sabik
+emails  : rohit.bhattachar@gmail.com, azwadsabik@gmail.com
+"""
+
+# imports
+from lxml import html
+import requests
+import pickle
+
+# get page source
+page = requests.get('https://www.dota2.com/heroes/')
+tree = html.fromstring(page.content)
+
+# get all options present in source
+options = tree.xpath('//option/text()')
+
+# parse out hero names from these options
+# Anti-Mage is first listed
+AM_index = options.index("Anti-Mage")
+hero_names = options[AM_index:]
+
+# replace spaces with underscore
+# to use in urls
+hero_names = [name.replace(' ', '_') for name in hero_names]
+# another replacement (think only needed for nature's prophet
+hero_names = [name.replace('\'', '') for name in hero_names]
+
+print hero_names
+
+# iterate through each heros website
+# make a dictionary containing their stats
+# hero_name : [int, int_gain, agi, agi_gain, str, str_gain, min_dmg, max_dmg, mv_speed, armour]
+hero_stats = {}
+for hero in hero_names:
+    page = requests.get('https://www.dota2.com/hero/' + hero + '/')
+    tree = html.fromstring(page.content)
+    unformatted_stats = tree.xpath('//div[@class="overview_StatVal"]/text()')
+    formatted_stats = []
+
+    # perform separation for starting int/agi/str from gain
+    # and min damage from max damage
+    # otherwise simply convert to float and add to stats
+    # this is kinda done automatically by the try except
+    for stat in unformatted_stats:
+        for s in stat.split():
+            try:
+                formatted_stats.append(float(s))
+            except ValueError:
+                pass
+
+    hero_stats[hero] = formatted_stats
+    print hero, hero_stats[hero]
+
+# save the hero stats dict using pickle
+pickle.dump(hero_stats, open('hero_stats.p', 'wb'))
+
+# test to see that the pickle dump worked
+hero_stats_loaded = pickle.load(open('hero_stats.p', 'rb'))
+print hero_stats_loaded['Outworld_Devourer']

@@ -1,0 +1,65 @@
+"""
+Script to obtain match ids for the teams attending the Frankfurt Major
+
+authors : Rohit Bhattacharya, Azwad Sabik
+emails  : rohit.bhattachar@gmail.com, azwadsabik@gmail.com
+"""
+
+# imports
+from lxml import html
+import requests
+import pickle
+import os
+
+
+# teams and their IDs
+TEAMS = {"Alliance": 'http://www.datdota.com/team.php?q=376&team=Alliance', "EG": 'http://www.datdota.com/team.php?q=66&team=EG', "Secret": 'http://www.datdota.com/team.php?q=1409&team=Secret', "VP": 'http://www.datdota.com/team.php?q=1440&team=VP%202', "Vega": 'http://www.datdota.com/team.php?q=1527&team=Vega'}
+
+# number of games we want ids for
+NUM_GAMES = 10
+# manually entered because i can't access dotabuff through requests it seems..
+match_ids = {}
+
+for team in TEAMS:
+    print team
+    team_id = TEAMS[team]
+    page = requests.get(team_id)
+    tree = html.fromstring(page.content)
+    links = tree.xpath('//a/@href')
+
+    recent_matches = []
+    for link in links:
+        if 'match.php?q' in link:
+            match_id = link.split('=')[1]
+            recent_matches.append(match_id)
+        if len(recent_matches) >= NUM_GAMES:
+            break
+    
+    print recent_matches
+
+print os.listdir('../csvs')
+f = open('../csvs/ datdota Match 1944132605 .csv')
+for line in f:
+    print line
+
+
+
+
+
+'''
+page = requests.get('http://yasp.co/matches/1916406689/graphs')
+tree = html.fromstring(page.content)
+yasp_graph_data = tree.xpath('//script/text()')
+start = yasp_graph_data[1].index("goldCols")
+end = yasp_graph_data[1].index(",\"gold_reasons\"")
+unformatted_gold_sources_data = yasp_graph_data[1][start:end]
+gold_sources = []
+
+for s in unformatted_gold_sources_data.split(','):
+    try:
+        gold_sources.append(float(s))
+    except ValueError:
+        pass
+
+print gold_sources
+'''

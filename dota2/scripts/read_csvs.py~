@@ -1,0 +1,110 @@
+"""
+Script to obtain match ids for the teams attending the Frankfurt Major
+
+authors : Rohit Bhattacharya, Azwad Sabik
+emails  : rohit.bhattachar@gmail.com, azwadsabik@gmail.com
+"""
+
+# imports
+import os
+import numpy as np
+import pickle
+
+# list of teams
+#TEAMS = ["Alliance", "EG", "Secret", "VP", "Vega"]
+TEAMS = ["Secret"]
+CSV_DIR = '../csvs/'
+
+def parse_match(match, desired_team):
+    '''
+    Find relevant info for the team
+    and match in question
+
+    Params
+    ------
+    match : csv containing match details
+    desired_team  : team whose info is desired
+
+    Returns
+    -------
+    list of stats : [[stats], [stats]...]
+    list of player labels : [player, player...]
+    Note the indices of stats and player line up
+    '''
+    
+    # open match file
+    match_file = open('/'.join((CSV_DIR, desired_team, match)))
+    team_player_hero_labels = []
+    stats = []
+
+    # read line by line
+    for line in match_file:
+
+        # check if this line contains info
+        # about the desired team
+        if not desired_team in line:
+            continue
+
+        line = line.strip()
+        line = line.split(',')
+
+
+        # the [1:-1] is a hack because
+        # there are "quotes" around each field
+        # so get rid of these double quotes
+        # and convert strings to numeric values
+        # where possible
+        formatted_values = []
+        for field in line:
+            value = field[1:-1]
+            try:
+                formatted_values.append(float(value))
+            except ValueError:
+                formatted_values.append(value)
+
+        # get label info
+        team_name = formatted_values[0]
+        player_name = formatted_values[1]
+        hero_name = formatted_values[2]
+        #team_player_hero_labels.append('_'.join((team_name, player_name, hero_name)))
+        team_player_hero_labels.append(player_name)
+        stats.append(formatted_values[3:])
+
+    return team_player_hero_labels, stats
+
+
+all_match_labels = []
+all_match_stats = np.zeros(19)
+
+# iterate through each team
+for team in TEAMS:
+
+    print team
+
+    matches = os.listdir(CSV_DIR + team)
+
+    for match in matches:
+        
+        # check to make sure we only parse
+        # actual match files
+        if not "Match" in match:
+            continue
+
+        # parse the match
+        curr_match_labels, curr_match_stats = parse_match(match, team)
+
+        # add this matches data to all matches data
+        all_match_labels.extend(curr_match_labels)
+        for stats in curr_match_stats:
+            all_match_stats = np.vstack((all_match_stats, stats))
+        
+        
+all_match_stats = all_match_stats[1:,:]
+
+print len(all_match_labels)
+print all_match_stats.shape
+
+# save the data using pickle
+pickle.dump(all_match_labels, open('../pickles/team_player_hero_labels.p', 'wb'))
+pickle.dump(all_match_stats, open('../pickles/gold_source_stats.p', 'wb'))
+

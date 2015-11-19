@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Script to perform LLE analysis on DOTA 2 characters' base statistics
 

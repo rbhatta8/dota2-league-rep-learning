@@ -55,8 +55,8 @@ for hero in hero_names:
     print hero, hero_stats[hero]
 
 # save the hero stats dict using pickle
-pickle.dump(hero_stats, open('../pickles/hero_stats.p', 'wb'))
+pickle.dump(hero_stats, open('pickles/hero_stats.p', 'wb'))
 
 # test to see that the pickle dump worked
-hero_stats_loaded = pickle.load(open('../pickles/hero_stats.p', 'rb'))
+hero_stats_loaded = pickle.load(open('pickles/hero_stats.p', 'rb'))
 print hero_stats_loaded['Outworld_Devourer']

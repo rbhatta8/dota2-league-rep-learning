@@ -1,5 +1,5 @@
 """
-Script to perform LLE analysis on DOTA 2 characters' base statistics
+Script to perform LLE
 
 authors : Rohit Bhattacharya, Azwad Sabik
 emails  : rohit.bhattachar@gmail.com, azwadsabik@gmail.com
@@ -12,17 +12,17 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import sys
 
-hero_stats = pickle.load(open('hero_stats.p', 'rb'))
-X = np.zeros((0, len(hero_stats.values()[0][0:6])))
-Y = []
-for hero in hero_stats:
-    X = np.vstack((X, np.array(hero_stats[hero][0:6])))
-    Y.append(hero)
-print hero_stats['Outworld_Devourer']
+X_pickle = sys.argv[1]
+Y_pickle = sys.argv[2]
+output_name = sys.argv[3]
+
+X = pickle.load(open(X_pickle, 'rb'))
+Y = pickle.load(open(Y_pickle, 'rb'))
 
 n_samples, n_features = X.shape
-n_neighbors = 30
+n_neighbors = 50
 
 # Locally linear embedding of the dataset
 print("Computing LLE embedding")
@@ -38,4 +38,4 @@ for i in range(len(Y)):
             color=plt.cm.Set1(random.randint(1, 110)),
             fontdict={'weight': 'bold', 'size': 6})
 
-plt.savefig('dota_hero_LLE.png')
+plt.savefig('../results/' + output_name + '.png')

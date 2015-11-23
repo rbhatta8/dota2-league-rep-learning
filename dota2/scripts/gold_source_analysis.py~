@@ -12,7 +12,7 @@ import pickle
 
 # list of teams
 #TEAMS = ["Alliance", "EG", "Secret", "VP", "Vega"]
-TEAMS = ["Alliance", "Secret"]
+TEAMS = ["Alliance", "EG", "OG", "Secret"]
 CSV_DIR = '../csvs/'
 
 def parse_match(match, desired_team):
@@ -36,6 +36,17 @@ def parse_match(match, desired_team):
     match_file = open('/'.join((CSV_DIR, desired_team, match)))
     team_player_hero_labels = []
     stats = []
+
+    header = match_file.readline()
+    header = header.strip()
+    header = header.split(',')
+
+    team_ind = header.index('"Team"')
+    player_ind = header.index('"Player"')
+    hero_ind = header.index('"Hero"')
+    gpm_ind = header.index('"GPM"')
+    total_gold_ind = header.index('"Tot. Gold"')
+    devour_greed_ind = header.index('"Devour/Greed"')
 
     # read line by line
     for line in match_file:
@@ -63,18 +74,28 @@ def parse_match(match, desired_team):
                 formatted_values.append(value)
 
         # get label info
-        team_name = formatted_values[0]
-        player_name = formatted_values[1]
-        hero_name = formatted_values[2]
-        #team_player_hero_labels.append('_'.join((team_name, player_name, hero_name)))
-        team_player_hero_labels.append(player_name)
-        stats.append(formatted_values[3:])
+        team_name = formatted_values[team_ind]
+        player_name = formatted_values[player_ind]
+        hero_name = formatted_values[hero_ind]
+        gpm = formatted_values[gpm_ind]
+        total_gold = formatted_values[total_gold_ind]
+        # get rid of devour/greed gold
+        del formatted_values[devour_greed_ind]
+        match_time = float(total_gold/gpm)
+
+        team_player_hero_labels.append('_'.join((player_name, hero_name)))
+        #team_player_hero_labels.append(player_name)
+
+        # convert all values to per minute and add
+        # to stats
+        formatted_per_min_stats = [f/match_time for f in formatted_values[3:]]
+        stats.append(formatted_per_min_stats)
 
     return team_player_hero_labels, stats
 
 
 all_match_labels = []
-all_match_stats = np.zeros(19)
+all_match_stats = np.zeros(18)
 
 # iterate through each team
 for team in TEAMS:

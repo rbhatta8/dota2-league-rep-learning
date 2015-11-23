@@ -7,7 +7,7 @@ emails  : rohit.bhattachar@gmail.com, azwadsabik@gmail.com
 
 # imports
 from time import time
-from sklearn import manifold
+from sklearn import decomposition
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,19 +22,17 @@ X = pickle.load(open(X_pickle, 'rb'))
 Y = pickle.load(open(Y_pickle, 'rb'))
 
 n_samples, n_features = X.shape
-n_neighbors = 10
+n_neighbors = 30
 
-# Locally linear embedding of the dataset
-print("Computing LLE embedding")
-clf = manifold.LocallyLinearEmbedding(n_neighbors, n_components=2,
-                                      method='standard')
-t0 = time()
-X_lle = clf.fit_transform(X)
-print("Done. Reconstruction error: %g" % clf.reconstruction_error_)
+# pca of the dataset
+print("Computing PCA representation")
+n_components = 2
+pca = decomposition.PCA(n_components)
+X_pca = pca.fit(X).transform(X)
 
-plt.scatter(X_lle[:, 0], X_lle[:, 1])
+plt.scatter(X_pca[:, 0], X_pca[:, 1])
 for i in range(len(Y)):
-    plt.text(X_lle[i, 0], X_lle[i, 1], Y[i], 
+    plt.text(X_pca[i, 0], X_pca[i, 1], Y[i], 
             color=plt.cm.Set1(random.randint(1, 110)),
             fontdict={'weight': 'bold', 'size': 4})
 

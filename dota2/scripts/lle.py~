@@ -22,7 +22,7 @@ X = pickle.load(open(X_pickle, 'rb'))
 Y = pickle.load(open(Y_pickle, 'rb'))
 
 n_samples, n_features = X.shape
-n_neighbors = 10
+n_neighbors = 5
 
 # Locally linear embedding of the dataset
 print("Computing LLE embedding")
@@ -36,6 +36,7 @@ plt.scatter(X_lle[:, 0], X_lle[:, 1])
 for i in range(len(Y)):
     plt.text(X_lle[i, 0], X_lle[i, 1], Y[i], 
             color=plt.cm.Set1(random.randint(1, 110)),
-            fontdict={'weight': 'bold', 'size': 6})
+            fontdict={'weight': 'bold', 'size': 4})
 
 plt.savefig('../results/' + output_name + '.png')
+plt.show()

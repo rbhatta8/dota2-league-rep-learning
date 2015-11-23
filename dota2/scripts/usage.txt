@@ -1,0 +1,6 @@
+# to run LLE on gold sources
+python lle.py ../pickles/gold_source_stats.p ../pickles/team_player_hero_labels.p ../results/gold_source_lle
+
+# to run PCA on gold sources
+python pca.py ../pickles/gold_source_stats.p ../pickles/team_player_hero_labels.p ../results/gold_source_pca
+

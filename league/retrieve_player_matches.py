@@ -91,21 +91,19 @@ def retrieve_player_match_stats(desired_player_name, first_ind, last_ind):
             recent_stats = np.vstack((recent_stats, match_stats))
     return recent_stats
 
-def test(desired_player_name):
-    X = None
-    for i in range(3):
-        first_ind = i*5
-        last_ind = first_ind + 5
-        key_func = keys[i%3]
-        x_out = retrieve_player_match_stats(desired_player_name, first_ind, last_ind)
-        if X == None:        
-            X = x_out
-        else:
-            X = np.vstack((X, x_out))
-        key_func()
-    return X
-            
-X = test('C9 Sneaky')
+n_matches = 0
+X = retrieve_player_match_stats('C9 Sneaky', n_matches, n_matches + 5)
+n_matches += 5
+def test():
+    global X
+    global n_matches
+    stats = retrieve_player_match_stats('C9 Sneaky', n_matches, n_matches + 5)
+    if X == None:
+        X = stats
+    else:
+        X = np.vstack((X, stats))
+    n_matches += 5        
+    
 n_samples, n_features = X.shape
 
 # Locally linear embedding of the dataset

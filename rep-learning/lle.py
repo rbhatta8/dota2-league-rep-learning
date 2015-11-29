@@ -90,9 +90,9 @@ if Y_path:
     # based on their unique labels
     unique_labels = set(Y)
     num_unique_labels = len(unique_labels)
-    unique_labels_dict = dict(zip(unique_labels, range(num_unique_labels))) 
-    colour_map = [unique_labels_dict[l] for l in unique_labels_dict]
-    
+    unique_labels_dict = dict(zip(unique_labels, range(num_unique_labels)))
+    colour_map = [unique_labels_dict[l] for l in Y]
+
     # plot using this colour map
     plt.scatter(X_lle[:,0], X_lle[:,1], c=colour_map)
 

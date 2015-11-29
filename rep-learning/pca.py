@@ -87,7 +87,7 @@ if Y_path:
     colour_map = [unique_labels_dict[l] for l in Y]
 
     # plot using this colour map                                                                                      
-    plt.scatter(X_lle[:,0], X_lle[:,1], c=colour_map)
+    plt.scatter(X_pca[:,0], X_pca[:,1], c=colour_map)
 
     '''
     for i in range(len(Y)):

@@ -10,10 +10,11 @@ import pickle
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 from sklearn import manifold
 from sklearn import decomposition
 
-with open('Veraxios_API_Key.txt', 'r') as f:
+with open(os.path.join('..', 'keys', 'Veraxios.txt'), 'r') as f:
      lol = RiotWatcher(f.read().strip())
      
 class Champion:
@@ -31,15 +32,15 @@ class Champion:
         return vec        
      
 def get_champions(ids = None):
-    champions = []
+    champions = {}
     if ids == None:
         ids = []
         static_champ_list_data = lol.static_get_champion_list()['data']
         for champ_data in static_champ_list_data.values():
             ids.append(champ_data['id'])
     for identifier in ids:
-        champions.append(Champion(identifier))
-        print champions[-1].name
+        champions[identifier] = Champion(identifier)
+        print champions[identifier].name
     return champions
 
 def get_champion_datapoints(champions):
@@ -57,7 +58,7 @@ def get_champion_datapoints(champions):
 # with open('champions.p', 'w') as c:
 #    champions = pickle.dump(champions, c)        
         
-with open('champions.p', 'r') as c:
+with open('champions', 'r') as c:
     champions = pickle.load(c)
 
 X, names, tags = get_champion_datapoints(champions)

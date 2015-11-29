@@ -37,6 +37,9 @@ BOOLEAN_PARTICIPANT_STATS = ['firstBloodAssist', 'firstBloodKill',
                              'firstInhibitorAssist', 'firstInhibitorKill',
                              'firstTowerAssist', 'firstTowerKill']
 
+RELEVANT_STATS = ENDGAME_PARTICIPANT_STATS + BOOLEAN_PARTICIPANT_STATS
+
+conditional_load('champions')
 
 class Match:
     def __init__(self, match):
@@ -58,6 +61,7 @@ class Match:
 
 class Participant:
     def __init__(self, participant, match_obj):
+        self.championId = participant['championId']
         self.stats = participant['stats']
         self.timeline = participant['timeline']
         self.lane = self.timeline['lane']
@@ -148,12 +152,23 @@ def generate_role_labels(match_details, winners=False):
         pickle.dump(roles, v)
     return roles
     
+def generate_champion_tag_labels(match_details, winners=False):
+    participant_objects = get_participant_objects(match_details, winners)
+    tags = [champions[participant_obj.championId].tags[0] for participant_obj in participant_objects]
+    fn = 'tags'
+    fn = fn + '_winners' if winners else fn
+    with open(os.path.join('..', 'pickles', fn), 'wb') as v:
+        pickle.dump(tags, v)
+    return tags        
+    
 def generate_win_labels(match_details):
     participant_objects = get_participant_objects(match_details)
     wins = [participant_obj.winner for participant_obj in participant_objects]
     with open(os.path.join('..', 'pickles', 'wins'), 'wb') as v:
         pickle.dump(wins, v)
     return wins
+    
+
     
 if __name__ == "__main__":
     conditional_load('match_details')
@@ -163,4 +178,7 @@ if __name__ == "__main__":
     X_relevant_stats_winners = generate_X_relevant_stats(match_details, winners=True)
     lanes_winners = generate_lane_labels(match_details, winners=True)
     roles_winners = generate_role_labels(match_details, winners=True)
+    tags_winners = generate_champion_tag_labels(match_details, winners=True)
+    tags = generate_champion_tag_labels(match_details)
     wins = generate_win_labels(match_details)
+    conditional_load('champions')

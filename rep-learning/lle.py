@@ -30,19 +30,19 @@ def parse_arguements():
     parser = argparse.ArgumentParser(description=info)
 
     # program arguments
-    parser.add_argument('X', '--X-data',
+    parser.add_argument('-X', '--X-data',
                         type=str, required=True,
                         help='Path to file containing X data')
 
-    parser.add_argument('Y', '--Y-labels',
+    parser.add_argument('-Y', '--Y-labels',
                         type=str, default=None,
                         help='Path to file containing Y labels (optional)')
 
-    parser.add_argument('o', '--output',
+    parser.add_argument('-o', '--output',
                        type=str, required=True,
                        help='Path, including name of the output png')
 
-    parser.add_arguement('n', '--num-neighbors',
+    parser.add_argument('-n', '--num-neighbours',
                          type=int, default=10,
                          help='Num neighbors to use for the LLE')
 
@@ -53,14 +53,14 @@ def parse_arguements():
 
 # get the required arguements from
 # the user
-opts = parse_arguments()
+opts = parse_arguements()
 X_path = opts['X_data']
-Y_path = opts['Y_data']
+Y_path = opts['Y_labels']
 output_name = opts['output']
-n_neighbors = opts['num_neigbours']
+n_neighbors = opts['num_neighbours']
 
 # load the pickles, load Y only if given
-X = pickle.load(open(X_pickle, 'rb'))
+X = pickle.load(open(X_path, 'rb'))
 #X = np.load(open(X_path))
 if Y_path:
     Y = pickle.load(open(Y_path, 'rb'))
@@ -80,12 +80,12 @@ print("Done. Reconstruction error: %g" % clf.reconstruction_error_)
 plt.scatter(X_lle[:, 0], X_lle[:, 1])
 
 # plot the labels only if given
-if Y:
+if Y_path:
     for i in range(len(Y)):
         plt.text(X_lle[i, 0], X_lle[i, 1], Y[i], 
                  color=plt.cm.Set1(random.randint(1, 110)),
                  fontdict={'weight': 'bold', 'size': 4})
 
 # save the figure
-plt.savefig('../results/' + output_name + '.png')
+plt.savefig(output_name)
 plt.show()

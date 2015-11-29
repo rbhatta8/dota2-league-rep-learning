@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import random
 import sys
 import argparse
+from mpl_toolkits.mplot3d import Axes3D
 
 def parse_arguements():
     """
@@ -72,15 +73,36 @@ print("Computing PCA representation")
 pca = decomposition.PCA(arg_components)
 X_pca = pca.fit(X).transform(X)
 
-# plot the raw data
-plt.scatter(X_pca[:, 0], X_pca[:, 1])
+# plot the labels only if given                                                                                                              
 
-# plot the labels only if given
 if Y_path:
+
+    # make a colour map that colours the points                                                                                              
+    # based on their unique labels
+    unique_labels = set(Y)
+    num_unique_labels = len(unique_labels)
+    unique_labels_dict = dict(zip(unique_labels, range(num_unique_labels)))
+    colour_map = [unique_labels_dict[l] for l in Y]
+
+    # plot using this colour map                     
+
+    '''
     for i in range(len(Y)):
-        plt.text(X_lle[i, 0], X_lle[i, 1], Y[i], 
+        plt.text(X_lle[i, 0], X_lle[i, 1], Y[i],
                  color=plt.cm.Set1(random.randint(1, 110)),
                  fontdict={'weight': 'bold', 'size': 4})
+    '''
+else:
+    colour_map = np.ones((n_samples, 1))
+
+
+if arg_components == 2:                                                                 
+    plt.scatter(X_pca[:,0], X_pca[:,1], c=colour_map)
+
+else:
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(X_pca[:,0], X_pca[:,1], c=colour_map)
 
 # save the figure
 plt.savefig(output_name)

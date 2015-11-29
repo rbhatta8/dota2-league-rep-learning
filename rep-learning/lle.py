@@ -42,9 +42,13 @@ def parse_arguements():
                        type=str, required=True,
                        help='Path, including name of the output png')
 
-    parser.add_argument('-n', '--num-neighbours',
+    parser.add_argument('-nn', '--num-neighbours',
                          type=int, default=10,
                          help='Num neighbors to use for the LLE')
+
+    parser.add_argument('-nc', '--num-components',
+                         type=int, default=2,
+                         help='Num components to use for the LLE representation')
 
     args = parser.parse_args()
     opts = vars(args)
@@ -58,19 +62,19 @@ X_path = opts['X_data']
 Y_path = opts['Y_labels']
 output_name = opts['output']
 n_neighbors = opts['num_neighbours']
+arg_components = opts['num_components']
 
 # load the pickles, load Y only if given
 X = pickle.load(open(X_path, 'rb'))
-#X = np.load(open(X_path))
+
 if Y_path:
     Y = pickle.load(open(Y_path, 'rb'))
 
 n_samples, n_features = X.shape
-n_neighbors = 10
 
 # Locally linear embedding of the dataset
 print("Computing LLE embedding")
-clf = manifold.LocallyLinearEmbedding(n_neighbors, n_components=2,
+clf = manifold.LocallyLinearEmbedding(n_neighbors, n_components=arg_components,
                                       method='standard')
 t0 = time()
 X_lle = clf.fit_transform(X)

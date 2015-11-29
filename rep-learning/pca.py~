@@ -102,7 +102,7 @@ if arg_components == 2:
 else:
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(X_pca[:,0], X_pca[:,1], c=colour_map)
+    ax.scatter(X_pca[:,0], X_pca[:,1], X_pca[:,2], c=colour_map)
 
 # save the figure
 plt.savefig(output_name)

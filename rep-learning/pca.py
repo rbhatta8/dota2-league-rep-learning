@@ -70,7 +70,7 @@ n_samples, n_features = X.shape
 
 # Computing PCA representation
 print("Computing PCA representation")
-pca = decomposition.PCA(arg_components)
+pca = decomposition.PCA(arg_components, whiten=True)
 X_pca = pca.fit(X).transform(X)
 
 # plot the labels only if given                                                                                                              

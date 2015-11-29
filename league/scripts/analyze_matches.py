@@ -99,8 +99,24 @@ def conditional_load(variable):
             globals()[variable] = pickle.load(v)
     return
     
+def save(variable):        
+    with open(os.path.join('..', 'pickles', variable), 'w') as v:
+        pickle.dump(globals()[variable], v)   
+        
+def generate_X_relevant_stats(match_details):
+    match_objects = [Match(match_details[match_key]) for match_key in match_details.keys()] 
+    participant_objects = []
+    participant_obj_lists = [match_obj.participants for match_obj in match_objects]
+    for object_list in participant_obj_lists:
+        for participant_obj in object_list:
+            participant_objects.append(participant_obj)
+    X_relevant_stats = np.vstack(tuple([participant.vectorize_relevant_stats()
+                            for participant in participant_objects]))
+    with open(os.path.join('..', 'pickles', 'X_relevant_stats'), 'w') as v:
+        X_relevant_stats.dump(v)
+    return X_relevant_stats
+    
 if __name__ == "__main__":
     conditional_load('match_details')
-    a_match = Match(match_details.values()[0])
-    test_stats = a_match.participants[0].vectorize_relevant_stats()
+    X_relevant_stats = generate_X_relevant_stats(match_details)
     

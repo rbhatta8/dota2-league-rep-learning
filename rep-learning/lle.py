@@ -60,8 +60,8 @@ output_name = opts['output']
 n_neighbors = opts['num_neigbours']
 
 # load the pickles, load Y only if given
-#X = pickle.load(open(X_pickle, 'rb'))
-X = np.load(open(X_path))
+X = pickle.load(open(X_pickle, 'rb'))
+#X = np.load(open(X_path))
 if Y_path:
     Y = pickle.load(open(Y_path, 'rb'))
 

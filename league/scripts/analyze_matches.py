@@ -94,13 +94,13 @@ class Participant:
 
 def conditional_load(variable):
     if variable in os.listdir(os.path.join('..', 'pickles')) and variable not in globals():
-        with open(os.path.join('..', 'pickles', variable), 'r') as v:
+        with open(os.path.join('..', 'pickles', variable), 'rb') as v:
             print "Loading {0}".format(variable)
             globals()[variable] = pickle.load(v)
     return
     
 def save(variable):        
-    with open(os.path.join('..', 'pickles', variable), 'w') as v:
+    with open(os.path.join('..', 'pickles', variable), 'wb') as v:
         pickle.dump(globals()[variable], v)   
         
 def generate_X_relevant_stats(match_details):
@@ -112,7 +112,7 @@ def generate_X_relevant_stats(match_details):
             participant_objects.append(participant_obj)
     X_relevant_stats = np.vstack(tuple([participant.vectorize_relevant_stats()
                             for participant in participant_objects]))
-    with open(os.path.join('..', 'pickles', 'X_relevant_stats'), 'w') as v:
+    with open(os.path.join('..', 'pickles', 'X_relevant_stats'), 'wb') as v:
         X_relevant_stats.dump(v)
     return X_relevant_stats
     

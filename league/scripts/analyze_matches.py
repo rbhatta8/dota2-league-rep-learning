@@ -40,6 +40,7 @@ BOOLEAN_PARTICIPANT_STATS = ['firstBloodAssist', 'firstBloodKill',
 
 class Match:
     def __init__(self, match):
+        self.match = match
         self.participants = []
         self.match_duration = match['matchDuration']
         for participant in match['participants']:
@@ -59,6 +60,8 @@ class Participant:
     def __init__(self, participant, match_obj):
         self.stats = participant['stats']
         self.timeline = participant['timeline']
+        self.lane = self.timeline['lane']
+        self.role = self.timeline['role']
         self.match_obj = match_obj
     def vectorize_stats(self):
         stats_keys = sorted(self.stats.keys())
@@ -103,20 +106,39 @@ def save(variable):
     with open(os.path.join('..', 'pickles', variable), 'wb') as v:
         pickle.dump(globals()[variable], v)   
         
-def generate_X_relevant_stats(match_details):
+def get_participant_objects(match_details):        
     match_objects = [Match(match_details[match_key]) for match_key in match_details.keys()] 
     participant_objects = []
     participant_obj_lists = [match_obj.participants for match_obj in match_objects]
     for object_list in participant_obj_lists:
         for participant_obj in object_list:
             participant_objects.append(participant_obj)
+    return participant_objects
+
+def generate_X_relevant_stats(match_details):
+    participant_objects = get_participant_objects(match_details)
     X_relevant_stats = np.vstack(tuple([participant.vectorize_relevant_stats()
                             for participant in participant_objects]))
     with open(os.path.join('..', 'pickles', 'X_relevant_stats'), 'wb') as v:
         X_relevant_stats.dump(v)
     return X_relevant_stats
     
+def generate_lane_labels(match_details):
+    participant_objects = get_participant_objects(match_details)
+    lanes = [participant_obj.lane for participant_obj in participant_objects]
+    with open(os.path.join('..', 'pickles', 'lanes'), 'wb') as v:
+        pickle.dump(lanes, v)
+    return lanes
+
+def generate_role_labels(match_details):
+    participant_objects = get_participant_objects(match_details)
+    roles = [participant_obj.role for participant_obj in participant_objects]
+    with open(os.path.join('..', 'pickles', 'roles'), 'wb') as v:
+        pickle.dump(roles, v)
+    return roles
+    
 if __name__ == "__main__":
     conditional_load('match_details')
     X_relevant_stats = generate_X_relevant_stats(match_details)
-    
+    lanes = generate_lane_labels(match_details)
+    roles = generate_role_labels(match_details)

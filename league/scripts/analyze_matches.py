@@ -52,8 +52,8 @@ class Participant:
             
 
 def conditional_load(variable):
-    if variable in os.listdir(os.getcwd()) and variable not in globals():
-        with open(variable, 'r') as v:
+    if variable in os.listdir(os.path.join('..', 'pickles')) and variable not in globals():
+        with open(os.path.join('..', 'pickles', variable), 'r') as v:
             print "Loading {0}".format(variable)
             globals()[variable] = pickle.load(v)
     return

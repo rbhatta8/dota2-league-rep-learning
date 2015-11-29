@@ -7,7 +7,7 @@ emails  : rohit.bhattachar@gmail.com, azwadsabik@gmail.com
 
 # imports
 from time import time
-from sklearn import manifold
+from sklearn import decomposition
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt

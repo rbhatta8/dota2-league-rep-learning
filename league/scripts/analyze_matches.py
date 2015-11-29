@@ -62,6 +62,7 @@ class Participant:
         self.timeline = participant['timeline']
         self.lane = self.timeline['lane']
         self.role = self.timeline['role']
+        self.winner = int(self.stats['winner'])
         self.match_obj = match_obj
     def vectorize_stats(self):
         stats_keys = sorted(self.stats.keys())
@@ -106,39 +107,60 @@ def save(variable):
     with open(os.path.join('..', 'pickles', variable), 'wb') as v:
         pickle.dump(globals()[variable], v)   
         
-def get_participant_objects(match_details):        
+def get_participant_objects(match_details, winners=False):        
     match_objects = [Match(match_details[match_key]) for match_key in match_details.keys()] 
     participant_objects = []
     participant_obj_lists = [match_obj.participants for match_obj in match_objects]
     for object_list in participant_obj_lists:
         for participant_obj in object_list:
-            participant_objects.append(participant_obj)
+            if winners:
+                if participant_obj.winner:
+                    participant_objects.append(participant_obj)
+            else:
+                participant_objects.append(participant_obj)
     return participant_objects
 
-def generate_X_relevant_stats(match_details):
-    participant_objects = get_participant_objects(match_details)
+def generate_X_relevant_stats(match_details, winners=False):
+    participant_objects = get_participant_objects(match_details, winners)
     X_relevant_stats = np.vstack(tuple([participant.vectorize_relevant_stats()
                             for participant in participant_objects]))
-    with open(os.path.join('..', 'pickles', 'X_relevant_stats'), 'wb') as v:
+    fn = 'X_relevant_stats'
+    fn = fn + '_winners' if winners else fn
+    with open(os.path.join('..', 'pickles', fn), 'wb') as v:
         X_relevant_stats.dump(v)
     return X_relevant_stats
     
-def generate_lane_labels(match_details):
-    participant_objects = get_participant_objects(match_details)
+def generate_lane_labels(match_details, winners=False):
+    participant_objects = get_participant_objects(match_details, winners)
     lanes = [participant_obj.lane for participant_obj in participant_objects]
-    with open(os.path.join('..', 'pickles', 'lanes'), 'wb') as v:
+    fn = 'lanes'
+    fn = fn + '_winners' if winners else fn
+    with open(os.path.join('..', 'pickles', fn), 'wb') as v:
         pickle.dump(lanes, v)
     return lanes
 
-def generate_role_labels(match_details):
-    participant_objects = get_participant_objects(match_details)
+def generate_role_labels(match_details, winners=False):
+    participant_objects = get_participant_objects(match_details, winners)
     roles = [participant_obj.role for participant_obj in participant_objects]
-    with open(os.path.join('..', 'pickles', 'roles'), 'wb') as v:
+    fn = 'roles'
+    fn = fn + '_winners' if winners else fn
+    with open(os.path.join('..', 'pickles', fn), 'wb') as v:
         pickle.dump(roles, v)
     return roles
+    
+def generate_win_labels(match_details):
+    participant_objects = get_participant_objects(match_details)
+    wins = [participant_obj.winner for participant_obj in participant_objects]
+    with open(os.path.join('..', 'pickles', 'wins'), 'wb') as v:
+        pickle.dump(wins, v)
+    return wins
     
 if __name__ == "__main__":
     conditional_load('match_details')
     X_relevant_stats = generate_X_relevant_stats(match_details)
     lanes = generate_lane_labels(match_details)
     roles = generate_role_labels(match_details)
+    X_relevant_stats_winners = generate_X_relevant_stats(match_details, winners=True)
+    lanes_winners = generate_lane_labels(match_details, winners=True)
+    roles_winners = generate_role_labels(match_details, winners=True)
+    wins = generate_win_labels(match_details)

@@ -85,10 +85,26 @@ plt.scatter(X_lle[:, 0], X_lle[:, 1])
 
 # plot the labels only if given
 if Y_path:
+
+    # make a colour map that colours the points
+    # based on their unique labels
+    unique_labels = set(Y)
+    num_unique_labels = len(unique_labels)
+    unique_labels_dict = dict(zip(unique_labels, range(num_unique_labels))) 
+    colour_map = [unique_labels_dict[l] for l in unique_labels_dict]
+    
+    # plot using this colour map
+    plt.scatter(X_lle[:,0], X_lle[:,1], c=colour_map)
+
+    '''
     for i in range(len(Y)):
         plt.text(X_lle[i, 0], X_lle[i, 1], Y[i], 
                  color=plt.cm.Set1(random.randint(1, 110)),
                  fontdict={'weight': 'bold', 'size': 4})
+    '''
+
+else:
+    plt.scatter(X_lle[:, 0], X_lle[:, 1])
 
 # save the figure
 plt.savefig(output_name)

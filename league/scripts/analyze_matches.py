@@ -5,11 +5,13 @@ Script for analyzing match data
 @authors : Azwad Sabik, Rohit Bhattacharya
 @emails  : azwadsabik@gmail.com, rohit.bhattachar@gmail.com
 """
-
+import sys
 import pickle
 import os
 import numpy as np
 from champion_analysis import Champion
+sys.path.insert(0, os.path.join('..', '..', 'rep-learning', 'scripts'))
+import regression as r
 
 ENDGAME_PARTICIPANT_STATS = ['assists', 'champLevel', 'deaths', 'doubleKills', 
                                 'goldEarned', 'goldSpent', 'inhibitorKills', 
@@ -206,7 +208,7 @@ def conditional_load(variable):
     return
     
 def save(variable):        
-    with open(os.path.join('..', 'pickles', variable), 'wb') as v:
+    with open(os.path.join('..', 'pickles', variable), 'w') as v:
         pickle.dump(globals()[variable], v)   
         
 def get_match_objects(match_details):        
@@ -232,7 +234,7 @@ def generate_X_relevant_stats(match_details, winners=False):
                             for participant in participant_objects]))
     fn = 'X_relevant_stats'
     fn = fn + '_winners' if winners else fn
-    with open(os.path.join('..', 'pickles', fn), 'wb') as v:
+    with open(os.path.join('..', 'pickles', fn), 'w') as v:
         X_relevant_stats.dump(v)
     return X_relevant_stats
     
@@ -242,7 +244,7 @@ def generate_M_relevant_stats(match_details, winners=False):
                             for participant in participant_objects]))
     fn = 'M_relevant_stats'
     fn = fn + '_winners' if winners else fn
-    with open(os.path.join('..', 'pickles', fn), 'wb') as v:
+    with open(os.path.join('..', 'pickles', fn), 'w') as v:
         M_relevant_stats.dump(v)
     return M_relevant_stats    
     
@@ -252,7 +254,7 @@ def generate_X_segment_stats(match_details, segment_i, winners=False):
                                 for participant in participant_objects]))
     fn = 'X_segment_{0}_stats'.format(segment_i)
     fn = fn + '_winners' if winners else fn
-    with open(os.path.join('..', 'pickles', fn), 'wb') as v:
+    with open(os.path.join('..', 'pickles', fn), 'w') as v:
         X_segment_stats.dump(v)
     return X_segment_stats
     
@@ -261,16 +263,16 @@ def generate_lane_labels(match_details, winners=False):
     lanes = [participant_obj.lane for participant_obj in participant_objects]
     fn = 'lanes'
     fn = fn + '_winners' if winners else fn
-    with open(os.path.join('..', 'pickles', fn), 'wb') as v:
+    with open(os.path.join('..', 'pickles', fn), 'w') as v:
         pickle.dump(lanes, v)
     return lanes
 
 def generate_champion_labels(match_details, winners=False):
     participant_objects = get_participant_objects(match_details, winners)
     champion_labels = [champions[participant_obj.championId].name for participant_obj in participant_objects]
-    fn = 'champions'
+    fn = 'champion_labels'
     fn = fn + '_winners' if winners else fn
-    with open(os.path.join('..', 'pickles', fn), 'wb') as v:
+    with open(os.path.join('..', 'pickles', fn), 'w') as v:
         pickle.dump(champion_labels, v)
     return champion_labels
 
@@ -279,7 +281,7 @@ def generate_role_labels(match_details, winners=False):
     roles = [participant_obj.role for participant_obj in participant_objects]
     fn = 'roles'
     fn = fn + '_winners' if winners else fn
-    with open(os.path.join('..', 'pickles', fn), 'wb') as v:
+    with open(os.path.join('..', 'pickles', fn), 'w') as v:
         pickle.dump(roles, v)
     return roles
     
@@ -288,26 +290,48 @@ def generate_champion_tag_labels(match_details, winners=False):
     tags = [champions[participant_obj.championId].tags[0] for participant_obj in participant_objects]
     fn = 'tags'
     fn = fn + '_winners' if winners else fn
-    with open(os.path.join('..', 'pickles', fn), 'wb') as v:
+    with open(os.path.join('..', 'pickles', fn), 'w') as v:
         pickle.dump(tags, v)
     return tags        
     
 def generate_win_labels(match_details):
     participant_objects = get_participant_objects(match_details)
     wins = [participant_obj.winner for participant_obj in participant_objects]
-    with open(os.path.join('..', 'pickles', 'wins'), 'wb') as v:
+    with open(os.path.join('..', 'pickles', 'wins'), 'w') as v:
         pickle.dump(wins, v)
     return wins
+    
+def visualize_s0_regression(s0_predictor, rs, s0):
+    s0_hat = np.round(r.PLS_predict(s0_predictor, rs), 0)
+    err = np.round(abs(s0 - s0_hat)/s0*100, 0)
+    out_str = ""
+    for i in range(len(SEGMENT_STATS)):
+        out_str += "{0}: {1} ({2}) [{3}% error]".format(SEGMENT_STATS[i], s0_hat[i], s0[i], err[i])
+    return out_str
+
+def visualize_s1_regression(s1_predictor, s0, s1):
+    s1_hat = np.round(r.PLS_predict(s1_predictor, s0), 0)
+    err = np.round(abs(s1 - s1_hat)/s1*100, 0)
+    out_str = ""
+    for i in range(len(SEGMENT_STATS)):
+        out_str += "{0}: {3} --> {2} ({1}) [{4}% error]".format(SEGMENT_STATS[i], s1[i], s1_hat[i], s0[i], err[i])
+    return out_str
+    
+def get_participant(rs, s0, s1, i):
+    rs_i = rs[i, :]
+    s0_i = s0[i, :]
+    s1_i = s1[i, :]
+    return (rs_i, s0_i, s1_i)
     
 if __name__ == "__main__":
     conditional_load('match_details')
     conditional_load('champions')
     conditional_load('single_player_matches')
-    M_relevant_stats = generate_M_relevant_stats(single_player_matches)
-    X_relevant_stats = generate_X_relevant_stats(match_details)
+#    M_relevant_stats = generate_M_relevant_stats(single_player_matches)
+#    X_relevant_stats = generate_X_relevant_stats(match_details)
 #    lanes = generate_lane_labels(match_details)
 #    roles = generate_role_labels(match_details)
-    X_relevant_stats_winners = generate_X_relevant_stats(match_details, winners=True)
+#    X_relevant_stats_winners = generate_X_relevant_stats(match_details, winners=True)
 #    lanes_winners = generate_lane_labels(match_details, winners=True)
 #    roles_winners = generate_role_labels(match_details, winners=True)
 #    tags_winners = generate_champion_tag_labels(match_details, winners=True)
@@ -317,5 +341,12 @@ if __name__ == "__main__":
 #    champion_labels_winners = generate_champion_labels(match_details, winners=True)
 #    segment_0 = generate_X_segment_stats(match_details, 0)
 #    segment_1 = generate_X_segment_stats(match_details, 1)
+    
 #    segment_0_winners = generate_X_segment_stats(match_details, 0, winners=True)
 #    segment_1_winners = generate_X_segment_stats(match_details, 1, winners=True)
+#    s0_predictor = r.get_PLS_predictor(X_relevant_stats_winners, segment_0_winners)
+#    s1_predictor = r.get_PLS_predictor(segment_0_winners, segment_1_winners)
+#    M_relevant_stats_winners = generate_M_relevant_stats(single_player_matches, winners=True)
+#    M_segment_0_winners = generate_X_segment_stats(single_player_matches, 0)
+#    M_segment_1_winners = generate_X_segment_stats(single_player_matches, 1)
+    

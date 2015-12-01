@@ -30,7 +30,7 @@ singlePlayerPCA:
 
 recommendationSystem:
 # then proceed with the recommendations
-	python rep-learning/scripts/recommendation.py -T league/pickles/X_relevant_stats_winners -Y league/pickles/tags_winners -M rep-learning/pickles/PCA_single_player_stats_3d -C ../../Desktop/AP_PCA_3d -o league/results/whatever -op league/pickles/whatever
+	python rep-learning/scripts/recommendation.py -T league/pickles/X_relevant_stats_winners -Y league/pickles/champions_winners -M rep-learning/pickles/PCA_single_player_stats_3d -C ../../Desktop/AP_PCA_3d -o league/results/whatever -op league/pickles/whatever
 
 # Windows
 #python rep-learning\lle.py -X league\pickles\X_relevant_stats -o league\results\relevant_participant_stats_win_couloured_lle.png -nn 30 -Y league\pickles\wins

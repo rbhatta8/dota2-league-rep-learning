@@ -12,6 +12,7 @@ import visualization
 import argparse
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.cluster import AffinityPropagation
+import operator
 
 def parse_arguements():
     """
@@ -73,11 +74,37 @@ train_labels = pickle.load(open(labels_path, 'rb'))
 player_data = pickle.load(open(player_matches_path, 'rb'))
 clustering = pickle.load(open(clustering_path, 'rb'))
 
-print train_data.shape
-print player_data.shape
 # assign clusters to each match we have of the player
-player_match_labels = clustering.predict(player_data)
+player_match_clusters = clustering.predict(player_data)
 
+# count occurrences for each cluster
+unique_clusters = set(player_match_clusters)
+cluster_occurrence_dict = dict(zip(unique_clusters, [0]*len(unique_clusters)))
+for c in player_match_clusters:
+    cluster_occurrence_dict[c] += 1
 
-print player_match_labels
+# sort by frequency of occurrence
+# in descending order note this a list of tuples
+# with (cluster, n_occurrences)
+sorted_cluster_occurrence = sorted(cluster_occurrence_dict.items(), key=operator.itemgetter(1))
+sorted_cluster_occurrence.reverse()
 
+# get most frequent cluster
+most_freq_cluster = sorted_cluster_occurrence[0][0]
+
+# get training labels belonging to that cluster
+# in the training data
+train_clusters = clustering.labels_
+associated_train_labels = [train_labels[i] for i in range(len(train_clusters)) if train_clusters[i] == most_freq_cluster]
+
+# do a ranking of these labels by occurrence
+unique_labels = set(associated_train_labels)
+label_occurrence_dict = dict(zip(unique_labels, [0]*len(unique_labels)))
+for l in associated_train_labels:
+    label_occurrence_dict[l] += 1
+sorted_label_occurrence = sorted(label_occurrence_dict.items(), key=operator.itemgetter(1))
+sorted_label_occurrence.reverse()
+
+print "Rankings for recommended champions to play"
+for item in sorted_label_occurrence:
+    print item[0], item[1]

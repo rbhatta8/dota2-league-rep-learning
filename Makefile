@@ -8,7 +8,7 @@ clusteringPCA2d:
 # Perform the clustering pipeline for 3d pca
 clusteringPCA3d:
 	python rep-learning/scripts/pca.py -X league/pickles/X_relevant_stats_winners -o league/results/relevant_participant_stats_tags_coloured_winners_pca.png -nc 3 -Y league/pickles/tags_winners -op rep-learning/pickles/PCA_relevant_stats_winners_3d
-	python rep-learning/scripts/affinity_propagation.py -X rep-learning/pickles/PCA_relevant_stats_winners_3d -o league/results/clustering_3d_pca.png -p -50 -op ../../Desktop/AP_PCA_3d
+	python rep-learning/scripts/affinity_propagation.py -X rep-learning/pickles/PCA_relevant_stats_winners_3d -o league/results/clustering_3d_pca.png -p -50 -op ../../Desktop/AP_PCA_3d_compressed
 
 # Perform the clustering pipeline for raw data
 clusteringRaw:
@@ -30,7 +30,7 @@ singlePlayerPCA:
 
 recommendationSystem:
 # then proceed with the recommendations
-	python rep-learning/scripts/recommendation.py -T league/pickles/X_relevant_stats_winners -Y league/pickles/champions_winners -M rep-learning/pickles/PCA_single_player_stats_3d -C ../../Desktop/AP_PCA_3d -o league/results/whatever -op league/pickles/whatever
+	python rep-learning/scripts/recommendation.py -T league/pickles/X_relevant_stats_winners -Y league/pickles/champions_winners -M league/pickles/M_relevant_stats -C ../../Desktop/AP_PCA_3d -o league/results/whatever -op league/pickles/whatever -P rep-learning/pickles/PCA_relevant_stats_winners_3d
 
 # Windows
 #python rep-learning\lle.py -X league\pickles\X_relevant_stats -o league\results\relevant_participant_stats_win_couloured_lle.png -nn 30 -Y league\pickles\wins

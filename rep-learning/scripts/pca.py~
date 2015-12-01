@@ -75,14 +75,15 @@ n_samples, n_features = X.shape
 # Computing PCA representation
 print("Computing PCA representation")
 pca = decomposition.PCA(arg_components, whiten=True)
-X_pca = pca.fit(X).transform(X)
+pca_obj = pca.fit(X)
+X_pca = pca_obj.transform(X)
 
 # if we are given labels use them, otherwise initialize all
 # to be the same
 if Y_path:
     labels = Y
 else:
-    labels = np.ones((n_samples, 1))
+    labels = [0]*n_samples
 
 # do 2d visualization or 3d
 if arg_components == 2:                                                                 
@@ -93,4 +94,4 @@ elif arg_components == 3:
 
 
 # save the PCA representation as a pickle
-pickle.dump(X_pca, open(pickle_name, 'wb'))
+pickle.dump(pca_obj, open(pickle_name, 'wb'))

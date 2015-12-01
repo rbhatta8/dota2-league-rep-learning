@@ -12,6 +12,7 @@ import visualization
 import argparse
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.cluster import AffinityPropagation
+import operator
 
 def parse_arguements():
     """
@@ -40,6 +41,10 @@ def parse_arguements():
                         type=str, required=True,
                         help='Path to file containing match data of the player')
 
+    parser.add_argument('-P', '--projection',
+                        type=str, required=True,
+                        help='Path to file containing projection space for the data')
+
     parser.add_argument('-C', '--clustering',
                         type=str, required=True,
                         help='Path to file containing affinity propagation clustering on training data')
@@ -57,28 +62,120 @@ def parse_arguements():
     return opts
     
 
-# get the required arguements from
-# the user
-opts = parse_arguements()
-train_path = opts['train_data']
-labels_path = opts['Y_labels']
-player_matches_path = opts['match_data']
-clustering_path = opts['clustering']
-output_name = opts['output']
-pickle_name = opts['output_pickle']
+def clusters_to_indices(cluster_labels):
+    '''
+    Convenience function to form
+    a dictionary that maps cluster labels
+    to indices in the original data that
+    belong to those clusters
 
-# load the pickles, load Y only if given
-train_data = pickle.load(open(train_path, 'rb'))
-train_labels = pickle.load(open(labels_path, 'rb'))
-player_data = pickle.load(open(player_matches_path, 'rb'))
-clustering = pickle.load(open(clustering_path, 'rb'))
+    Params:
+    -------
+    cluster_labels : list
+        contains cluster label assignments for each training data point
+    in the original data
 
-player_data = player_data[:100, :]
-print train_data.shape
-print player_data.shape
-# assign clusters to each match we have of the player
-player_match_labels = clustering.predict(player_data)
+    Returns:
+    --------
+    clusters_to_inds : dict
+        cluster labels as keys mapped to list of indices with that label as values
+    '''
+
+    unique_clusters = set(cluster_labels)
+    clusters_to_inds = {c:[] for c in unique_clusters}
+
+    for i in range(len(cluster_labels)):
+        cluster_label = cluster_labels[i]
+        clusters_to_inds[cluster_label].append(i)
+    
+    return clusters_to_inds
+    
+def predict_cluster_labels(clustering_obj, new_data):
+    '''
+    Predict cluster labels for new data
+
+    Params:
+    -------
+    clustering_obj : sklearn obj
+        object that was produced after clustering training data
+
+    new_data : 2d np array
+        new data whose cluster labels are to be predicted
+
+    Returns:
+    --------
+    predicted_cluster_labels : list
+        list containing the predicted cluster labels
+    '''
+
+    predicted_cluster_labels = clustering_obj.predict(new_data)
+    return predicted_cluster_labels
 
 
-print player_match_labels
+
+def recommend_champions_ranking(player_data, projection, clustering_obj, train_labels):
+
+    # first project the data into the correct space
+    projected_player_data = np.dot(player_data, projection)
+
+    # assign clusters to each match we have of the player
+    player_match_clusters = predict_cluster_labels(clustering_obj, projected_player_data)
+
+    # count occurrences for each cluster
+    unique_clusters = set(player_match_clusters)
+    cluster_occurrence_dict = dict(zip(unique_clusters, [0]*len(unique_clusters)))
+    for c in player_match_clusters:
+        cluster_occurrence_dict[c] += 1
+
+    # sort by frequency of occurrence
+    # in descending order note this a list of tuples
+    # with (cluster, n_occurrences)
+    sorted_cluster_occurrence = sorted(cluster_occurrence_dict.items(), key=operator.itemgetter(1))
+    sorted_cluster_occurrence.reverse()
+
+    # get most frequent cluster
+    most_freq_cluster = sorted_cluster_occurrence[0][0]
+
+    # get training labels belonging to that cluster
+    # in the training data
+    train_clusters = clustering_obj.labels_
+    associated_train_labels = [train_labels[i] for i in range(len(train_clusters)) if train_clusters[i] == most_freq_cluster]
+
+    # do a ranking of these labels by occurrence
+    unique_labels = set(associated_train_labels)
+    label_occurrence_dict = dict(zip(unique_labels, [0]*len(unique_labels)))
+    for l in associated_train_labels:
+        label_occurrence_dict[l] += 1
+    sorted_label_occurrence = sorted(label_occurrence_dict.items(), key=operator.itemgetter(1))
+    sorted_label_occurrence.reverse()
+
+    print "Rankings for recommended champions to play"
+    for item in sorted_label_occurrence:
+        print item[0], item[1]
+
+
+def main():
+
+    # get the required arguements from
+    # the user
+    opts = parse_arguements()
+    train_path = opts['train_data']
+    labels_path = opts['Y_labels']
+    player_matches_path = opts['match_data']
+    clustering_path = opts['clustering']
+    projection_path = opts['projection']
+    output_name = opts['output']
+    pickle_name = opts['output_pickle']
+
+    # load the pickles
+    train_data = pickle.load(open(train_path, 'rb'))
+    train_labels = pickle.load(open(labels_path, 'rb'))
+    player_data = pickle.load(open(player_matches_path, 'rb'))
+    clustering = pickle.load(open(clustering_path, 'rb'))
+    projection = pickle.load(open(projection_path, 'rb'))
+
+    #print clusters_to_indices(clustering.labels_)
+    recommend_champions_ranking(player_data, projection, clustering, train_labels)
+
+main()
 

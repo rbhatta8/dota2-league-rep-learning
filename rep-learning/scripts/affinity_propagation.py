@@ -52,7 +52,8 @@ def parse_arguements():
     args = parser.parse_args()
     opts = vars(args)
     return opts
-    
+
+
 
 # get the required arguements from
 # the user
@@ -74,7 +75,7 @@ n_samples, n_features = X.shape
 
 # Computing affinity propagation clustering
 print("Clustering using affinity propagation")
-af = AffinityPropagation(preference=preference_param, max_iter=1000).fit(X)
+af = AffinityPropagation(preference=preference_param, max_iter=1000, copy=False).fit(X)
 
 # display clustering statistics
 labels = af.labels_

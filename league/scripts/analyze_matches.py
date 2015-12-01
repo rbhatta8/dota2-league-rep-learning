@@ -139,8 +139,9 @@ class Participant:
             if event_type != None:
                 stats[event_type] += 1
         segment_name = SEGMENTS[segment_i]
-        stats['gold'] += p.timeline['goldPerMinDeltas'][segment_name]*10
-        stats['damage_taken'] += p.timeline['damageTakenPerMinDeltas'][segment_name]*10
+        if segment_i < self.match_obj.match_duration/60/10:
+            stats['gold'] += self.timeline['goldPerMinDeltas'][segment_name]*10
+            stats['damage_taken'] += self.timeline['damageTakenPerMinDeltas'][segment_name]*10
         latest_frame = None
         latest_frame_key = 0
         for k, v in sorted(self.participantFrames.items()):
@@ -254,6 +255,15 @@ def generate_lane_labels(match_details, winners=False):
         pickle.dump(lanes, v)
     return lanes
 
+def generate_champion_labels(match_details, winners=False):
+    participant_objects = get_participant_objects(match_details, winners)
+    champion_labels = [champions[participant_obj.championId].name for participant_obj in participant_objects]
+    fn = 'champions'
+    fn = fn + '_winners' if winners else fn
+    with open(os.path.join('..', 'pickles', fn), 'wb') as v:
+        pickle.dump(champion_labels, v)
+    return champion_labels
+
 def generate_role_labels(match_details, winners=False):
     participant_objects = get_participant_objects(match_details, winners)
     roles = [participant_obj.role for participant_obj in participant_objects]
@@ -291,7 +301,9 @@ if __name__ == "__main__":
 #    tags_winners = generate_champion_tag_labels(match_details, winners=True)
 #    tags = generate_champion_tag_labels(match_details)
 #    wins = generate_win_labels(match_details)
-    segment_0 = generate_X_segment_stats(match_details, 0)
-    segment_1 = generate_X_segment_stats(match_details, 1)
-    segment_0_winners = generate_X_segment_stats(match_details, 0, winners=True)
-    segment_1_winners = generate_X_segment_stats(match_details, 1, winners=True)
+    champion_labels = generate_champion_labels(match_details)
+    champion_labels_winners = generate_champion_labels(match_details, winners=True)
+#    segment_0 = generate_X_segment_stats(match_details, 0)
+#    segment_1 = generate_X_segment_stats(match_details, 1)
+#    segment_0_winners = generate_X_segment_stats(match_details, 0, winners=True)
+#    segment_1_winners = generate_X_segment_stats(match_details, 1, winners=True)

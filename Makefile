@@ -25,6 +25,8 @@ clusteringLLE3d:
 	python rep-learning/scripts/affinity_propagation.py -X rep-learning/pickles/LLE_relevant_stats_winners_3d -o league/results/clustering_lle.png -p -50 -op rep-learning/pickles/AP_LLE_3d
 
 recommendationSystem:
-	python rep-learning/scripts/recommendation.py -T league/pickles/X_relevant_stats_winners -Y league/pickles/tags_winners -M league/pickles/X_relevant_stats_winners -C ../../Desktop/AP_PCA_3d -o league/results/whatever -op league/pickles/whatever
+	# first PCA the players data
+	python rep-learning/scripts/pca.py -X league/pickles/M_relevant_stats -o league/results/single_player_stats_tags_coloured_winners_pca.png -nc 3 -Y league/pickles/tags_winners -op rep-learning/pickles/PCA_single_player_stats_3d
+	python rep-learning/scripts/recommendation.py -T league/pickles/X_relevant_stats_winners -Y league/pickles/tags_winners -M rep-learning/pickles/PCA_single_player_stats_3d -C ../../Desktop/AP_PCA_3d -o league/results/whatever -op league/pickles/whatever
 # Windows
 #python rep-learning\lle.py -X league\pickles\X_relevant_stats -o league\results\relevant_participant_stats_win_couloured_lle.png -nn 30 -Y league\pickles\wins

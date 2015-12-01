@@ -236,6 +236,16 @@ def generate_X_relevant_stats(match_details, winners=False):
         X_relevant_stats.dump(v)
     return X_relevant_stats
     
+def generate_M_relevant_stats(match_details, winners=False):
+    participant_objects = get_participant_objects(match_details, winners)
+    M_relevant_stats = np.vstack(tuple([participant.vectorize_relevant_stats()
+                            for participant in participant_objects]))
+    fn = 'M_relevant_stats'
+    fn = fn + '_winners' if winners else fn
+    with open(os.path.join('..', 'pickles', fn), 'wb') as v:
+        M_relevant_stats.dump(v)
+    return M_relevant_stats    
+    
 def generate_X_segment_stats(match_details, segment_i, winners=False):
     participant_objects = get_participant_objects(match_details, winners)
     X_segment_stats = np.vstack(tuple([participant.vectorize_segment_stats(segment_i)
@@ -292,17 +302,19 @@ def generate_win_labels(match_details):
 if __name__ == "__main__":
     conditional_load('match_details')
     conditional_load('champions')
-#    X_relevant_stats = generate_X_relevant_stats(match_details)
+    conditional_load('single_player_matches')
+    M_relevant_stats = generate_M_relevant_stats(single_player_matches)
+    X_relevant_stats = generate_X_relevant_stats(match_details)
 #    lanes = generate_lane_labels(match_details)
 #    roles = generate_role_labels(match_details)
-#    X_relevant_stats_winners = generate_X_relevant_stats(match_details, winners=True)
+    X_relevant_stats_winners = generate_X_relevant_stats(match_details, winners=True)
 #    lanes_winners = generate_lane_labels(match_details, winners=True)
 #    roles_winners = generate_role_labels(match_details, winners=True)
 #    tags_winners = generate_champion_tag_labels(match_details, winners=True)
 #    tags = generate_champion_tag_labels(match_details)
 #    wins = generate_win_labels(match_details)
-    champion_labels = generate_champion_labels(match_details)
-    champion_labels_winners = generate_champion_labels(match_details, winners=True)
+#    champion_labels = generate_champion_labels(match_details)
+#    champion_labels_winners = generate_champion_labels(match_details, winners=True)
 #    segment_0 = generate_X_segment_stats(match_details, 0)
 #    segment_1 = generate_X_segment_stats(match_details, 1)
 #    segment_0_winners = generate_X_segment_stats(match_details, 0, winners=True)

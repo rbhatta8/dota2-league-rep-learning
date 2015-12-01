@@ -18,22 +18,22 @@ pickle_vars = ['challenger_matches', 'match_details']
 api_key_filenames = ['Veraxios.txt', 'Sabikan.txt', 'teasogood.txt']
 api_handles = []
 for fn in api_key_filenames:
-    with open(fn, 'r') as fp:
+    with open(os.path.join('..', 'keys', fn), 'r') as fp:
         api_key = fp.read().strip()
         api_handles.append(RiotWatcher(api_key))
 
 current_handle_index = 0        
         
 def conditional_load(variable):
-    if variable in os.listdir(os.getcwd()) and variable not in globals():
-        with open(variable, 'r') as v:
+    if variable in os.listdir(os.path.join('..', 'pickles')) and variable not in globals():
+        with open(os.path.join('..', 'pickles', variable), 'r') as v:
             print "Loading {0}".format(variable)
             globals()[variable] = pickle.load(v)
     return
         
 def save(variable):        
-    with open(variable, 'w') as v:
-        pickle.dump(globals()[variable], v)        
+    with open(os.path.join('..', 'pickles', variable), 'wb') as v:
+        pickle.dump(globals()[variable], v)         
         
 def get_active_handle():
     time.sleep(3)
@@ -83,42 +83,59 @@ for variable in pickle_vars:
     conditional_load(variable)
     
 if __name__ == '__main__':
-    if 'challenger_matches' not in vars():
-        print "Retrieving Challenger Names"
-        challengers_names = retrieve_challenger_player_names()
-        challenger_matches = {}
-        for name in challengers_names:
-            challenger_matches[name] = []
-        save('challenger_matches')
-    for player_name in challenger_matches.keys():
-        player_index = challenger_matches.keys().index(player_name)
-        if challenger_matches[player_name] == []:
-            challenger_matches[player_name] = retrieve_player_matches(player_name)
-            print "Retrieving Matches for Player {2} ({0}) [API KEY: {1}]".format(
-                    player_name, current_handle_index, player_index)
-    save('challenger_matches')
-    if 'match_details' not in vars():
-        match_details = {}
-        save('match_details')
-    matches_per_player = 5
-    for player_name in challenger_matches.keys():
-        n_matches_loaded = 0
-        player_index = challenger_matches.keys().index(player_name)
-        matches = challenger_matches[player_name]
-        while n_matches_loaded < matches_per_player:
-            current_match = matches[n_matches_loaded]
-            current_match_id = current_match['matchId']
-            if current_match_id not in match_details.keys():
-                match_details[current_match_id] = retrieve_match_details(
-                                                    current_match)
-                print "Loading match {0}: #{1} of {2} for Player {3} ({4}) [API KEY: {5}]".format(
-                        current_match_id, n_matches_loaded, matches_per_player,
-                        player_index, player_name, current_handle_index)
-            n_matches_loaded += 1
-            if n_matches_loaded >= len(matches):
-                break
-    save('match_details')
-            
-            
+#    if 'challenger_matches' not in vars():
+#        print "Retrieving Challenger Names"
+#        challengers_names = retrieve_challenger_player_names()
+#        challenger_matches = {}
+#        for name in challengers_names:
+#            challenger_matches[name] = []
+#        save('challenger_matches')
+#    for player_name in challenger_matches.keys():
+#        player_index = challenger_matches.keys().index(player_name)
+#        if challenger_matches[player_name] == []:
+#            challenger_matches[player_name] = retrieve_player_matches(player_name)
+#            print "Retrieving Matches for Player {2} ({0}) [API KEY: {1}]".format(
+#                    player_name, current_handle_index, player_index)
+#    save('challenger_matches')
+#    if 'match_details' not in vars():
+#        match_details = {}
+#        save('match_details')
+#    matches_per_player = 5
+#    for player_name in challenger_matches.keys():
+#        n_matches_loaded = 0
+#        player_index = challenger_matches.keys().index(player_name)
+#        matches = challenger_matches[player_name]
+#        while n_matches_loaded < matches_per_player:
+#            current_match = matches[n_matches_loaded]
+#            current_match_id = current_match['matchId']
+#            if current_match_id not in match_details.keys():
+#                match_details[current_match_id] = retrieve_match_details(
+#                                                    current_match)
+#                print "Loading match {0}: #{1} of {2} for Player {3} ({4}) [API KEY: {5}]".format(
+#                        current_match_id, n_matches_loaded, matches_per_player,
+#                        player_index, player_name, current_handle_index)
+#            n_matches_loaded += 1
+#            if n_matches_loaded >= len(matches):
+#                break
+#    save('match_details')
+
+##STUFF FOR A SINGLE PLAYER
+    matches_per_player = 10
+    player_name = challenger_matches.keys()[150]
+    player_index = challenger_matches.keys().index(player_name)
+    n_matches_loaded = 0
+    matches = challenger_matches[player_name]
+    single_player_matches = {}
+    while n_matches_loaded < matches_per_player:
+        current_match = matches[n_matches_loaded]
+        current_match_id = current_match['matchId']
+        single_player_matches[current_match_id] = retrieve_match_details(current_match)
+        print "Loading match {0}: #{1} of {2} for Player {3} ({4}) [API KEY: {5}]".format(
+                current_match_id, n_matches_loaded, matches_per_player, player_index, 
+                player_name, current_handle_index)
+        n_matches_loaded += 1
+        if n_matches_loaded >= len(matches):
+            break
+    save('single_player_matches')
                     
                 

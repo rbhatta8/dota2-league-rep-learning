@@ -68,13 +68,15 @@ output_name = opts['output']
 pickle_name = opts['output_pickle']
 
 # load the pickles, load Y only if given
-train_data = pickle.load(open(train_data, 'rb'))
+train_data = pickle.load(open(train_path, 'rb'))
 train_labels = pickle.load(open(labels_path, 'rb'))
-player_data = pickle.load(open(labels_path, 'rb'))
-clustering = pick.load(open(clustering_path, 'rb'))
+player_data = pickle.load(open(player_matches_path, 'rb'))
+clustering = pickle.load(open(clustering_path, 'rb'))
 
+player_data = player_data[:100, :]
 # assign clusters to each match we have of the player
 player_match_labels = clustering.fit_predict(player_data)
+
 
 print player_match_labels
 

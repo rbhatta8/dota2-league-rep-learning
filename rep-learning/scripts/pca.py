@@ -42,9 +42,13 @@ def parse_arguements():
                        type=str, required=True,
                        help='Path, including name of the output png')
 
-    parser.add_argument('-op', '--output-pickle',
+    parser.add_argument('-op', '--output-projection',
                         type=str, required=True,
-                        help='Path, including name of the output pickle for the PCA representation')
+                        help='Path, including name of the output pickle for the PCA eigen vectors')
+
+    parser.add_argument('-ox', '--output-x',
+                        type=str, required=True,
+                        help='Path, including name of the output pickle for the PCA representation of the original data')
 
     parser.add_argument('-nc', '--num-components',
                         type=int, default=2,
@@ -61,7 +65,8 @@ opts = parse_arguements()
 X_path = opts['X_data']
 Y_path = opts['Y_labels']
 output_name = opts['output']
-pickle_name = opts['output_pickle']
+projection_pickle = opts['output_projection']
+representation_pickle = opts['output_x']
 arg_components = opts['num_components']
 
 # load the pickles, load Y only if given
@@ -94,4 +99,5 @@ elif arg_components == 3:
 
 
 # save the PCA representation as a pickle
-pickle.dump(pca_obj.components_, open(pickle_name, 'wb'))
+pickle.dump(pca_obj.components_, open(projection_pickle, 'wb'))
+pickle.dump(X_pca, open(representation_pickle, 'wb'))

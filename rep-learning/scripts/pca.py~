@@ -94,4 +94,4 @@ elif arg_components == 3:
 
 
 # save the PCA representation as a pickle
-pickle.dump(pca_obj, open(pickle_name, 'wb'))
+pickle.dump(pca_obj.components_, open(pickle_name, 'wb'))

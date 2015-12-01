@@ -10,10 +10,10 @@ from time import time
 from sklearn import manifold
 import pickle
 import numpy as np
-import matplotlib.pyplot as plt
 import random
 import sys
 import argparse
+import visualization
 
 def parse_arguements():
     """
@@ -50,6 +50,10 @@ def parse_arguements():
                          type=int, default=2,
                          help='Num components to use for the LLE representation')
 
+    parser.add_argument('-op', '--output-pickle',
+                        type=str, required=True,
+                        help='Path, including name of the output pickle for the PCA representation')
+
     args = parser.parse_args()
     opts = vars(args)
     return opts
@@ -63,6 +67,7 @@ Y_path = opts['Y_labels']
 output_name = opts['output']
 n_neighbors = opts['num_neighbours']
 arg_components = opts['num_components']
+pickle_name = opts['output_pickle']
 
 # load the pickles, load Y only if given
 X = pickle.load(open(X_path, 'rb'))
@@ -80,32 +85,19 @@ t0 = time()
 X_lle = clf.fit_transform(X)
 print("Done. Reconstruction error: %g" % clf.reconstruction_error_)
 
-# plot the raw data
-plt.scatter(X_lle[:, 0], X_lle[:, 1])
-
-# plot the labels only if given
+# if we are given labels use them, otherwise initialize all                                                                                           
+# to be the same
 if Y_path:
-
-    # make a colour map that colours the points
-    # based on their unique labels
-    unique_labels = set(Y)
-    num_unique_labels = len(unique_labels)
-    unique_labels_dict = dict(zip(unique_labels, range(num_unique_labels)))
-    colour_map = [unique_labels_dict[l] for l in Y]
-
-    # plot using this colour map
-    plt.scatter(X_lle[:,0], X_lle[:,1], c=colour_map)
-
-    '''
-    for i in range(len(Y)):
-        plt.text(X_lle[i, 0], X_lle[i, 1], Y[i], 
-                 color=plt.cm.Set1(random.randint(1, 110)),
-                 fontdict={'weight': 'bold', 'size': 4})
-    '''
-
+    labels = Y
 else:
-    plt.scatter(X_lle[:, 0], X_lle[:, 1])
+    labels = np.ones((n_samples, 1))
 
-# save the figure
-plt.savefig(output_name)
-plt.show()
+# do 2d visualization or 3d
+if arg_components == 2:
+    visualization.visualize2d(X_lle, labels, output_name)
+
+elif arg_components == 3:
+    visualization.visualize3d(X_lle, labels, output_name)
+
+# save the LLE representation as a pickle
+pickle.dump(X_lle, open(pickle_name, 'wb'))

@@ -8,7 +8,7 @@ clusteringPCA2d:
 # Perform the clustering pipeline for 3d pca
 clusteringPCA3d:
 	python rep-learning/scripts/pca.py -X league/pickles/X_relevant_stats_winners -o league/results/relevant_participant_stats_tags_coloured_winners_pca.png -nc 3 -Y league/pickles/tags_winners -op rep-learning/pickles/PCA_relevant_stats_winners_3d
-	python rep-learning/scripts/affinity_propagation.py -X rep-learning/pickles/PCA_relevant_stats_winners_3d -o league/results/clustering_3d_pca.png -p -50 -op rep-learning/pickles/AP_PCA_3d
+	python rep-learning/scripts/affinity_propagation.py -X rep-learning/pickles/PCA_relevant_stats_winners_3d -o league/results/clustering_3d_pca.png -p -50 -op ../../Desktop/AP_PCA_3d
 
 # Perform the clustering pipeline for raw data
 clusteringRaw:

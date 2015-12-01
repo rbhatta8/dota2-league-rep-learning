@@ -43,6 +43,10 @@ def parse_arguements():
                        type=str, required=True,
                        help='Path, including name of the output png')
 
+    parser.add_argument('-op', '--output-pickle',
+                        type=str, required=True,
+                        help='Path, including name of the output pickle for the PCA representation')
+
     parser.add_argument('-nc', '--num-components',
                         type=int, default=2,
                         help='Num components to compute representation for')
@@ -58,6 +62,7 @@ opts = parse_arguements()
 X_path = opts['X_data']
 Y_path = opts['Y_labels']
 output_name = opts['output']
+pickle_name = opts['output_pickle']
 arg_components = opts['num_components']
 
 # load the pickles, load Y only if given
@@ -107,3 +112,6 @@ else:
 # save the figure
 plt.savefig(output_name)
 plt.show()
+
+# save the PCA representation as a pickle
+pickle.dump(X_pca, open(pickle_name, 'wb'))

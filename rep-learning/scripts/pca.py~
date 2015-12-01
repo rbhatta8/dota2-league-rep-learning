@@ -43,6 +43,10 @@ def parse_arguements():
                        type=str, required=True,
                        help='Path, including name of the output png')
 
+    parser.add_argument('-op', '--output-pickle',
+                        type=str, required=True,
+                        help='Path, including name of the output pickle for the PCA representation')
+
     parser.add_argument('-nc', '--num-components',
                         type=int, default=2,
                         help='Num components to compute representation for')
@@ -70,7 +74,7 @@ n_samples, n_features = X.shape
 
 # Computing PCA representation
 print("Computing PCA representation")
-pca = decomposition.PCA(arg_components)
+pca = decomposition.PCA(arg_components, whiten=True)
 X_pca = pca.fit(X).transform(X)
 
 # plot the labels only if given                                                                                                              
@@ -107,3 +111,5 @@ else:
 # save the figure
 plt.savefig(output_name)
 plt.show()
+
+# save the PCA representation as a pickle

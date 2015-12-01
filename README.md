@@ -20,3 +20,6 @@ python rep-learning/pca.py -X league/pickles/X_relevant_stats_winners -o league/
 
 # Perform PCA on league participant stats w/ colour labelling only for winners
 python rep-learning/pca.py -X league/pickles/X_relevant_stats_winners -o league/results/relevant_participant_stats_role_coloured_winners_pca.png -nc 3 -Y league/pickles/roles_winners
+
+# Perform PCA on league participant stats w/ colour labelling only for winners
+python rep-learning/pca.py -X league/pickles/X_relevant_stats_winners -o league/results/relevant_participant_stats_tags_coloured_winners_pca.png -nc 3 -Y league/pickles/tags_winners

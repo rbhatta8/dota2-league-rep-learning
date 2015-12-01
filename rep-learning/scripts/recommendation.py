@@ -13,6 +13,7 @@ import argparse
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.cluster import AffinityPropagation
 import operator
+import regression
 
 def parse_arguements():
     """
@@ -143,9 +144,31 @@ def get_sorted_label_occurrences(labels):
     
 
 def recommend_champions_ranking(player_data, projection, clustering_obj, train_labels):
-    '''
-    '''
+    ''' 
+    Recommends a ranking of champions a player should play
+    based on the players' match data provided and previously
+    clustered training data
 
+    Parameters:
+    ----------
+
+    player_data : 2d numpy array
+        match data of the player
+
+    projection  : 2d numpy array
+        projection matrix generated from a manifold learning technique
+
+    clustering_obg : sklearn object
+        an object that contains clustering information of the training data
+
+    train_labels : list
+        list of training labels that the recommendations will be based on
+
+    Returns:
+    --------
+
+    None : simply displays the recommendation
+    '''
 
     # first project the data into the correct space
     projected_player_data = np.dot(player_data, np.transpose(projection))

@@ -13,6 +13,7 @@ import argparse
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.cluster import AffinityPropagation
 import operator
+import regression
 
 def parse_arguements():
     """
@@ -111,44 +112,63 @@ def predict_cluster_labels(clustering_obj, new_data):
     predicted_cluster_labels = clustering_obj.predict(new_data)
     return predicted_cluster_labels
 
+def get_sorted_label_occurrences(labels):
+    '''
+    Get a sorted list of labels occurring in
+    descending order of their frequency
 
+    Params:
+    ------
+    labels : list
+       list of the labels
+
+    Returns:
+    --------
+    sorted_labels_occurrence : list of tuples
+        list of (label, frequency)
+    '''
+
+    # count occurrences for each cluster
+    unique_labels = set(labels)
+    labels_occurrence_dict = dict(zip(unique_labels, [0]*len(unique_labels)))
+    for c in labels:
+        labels_occurrence_dict[c] += 1
+
+    # sort by frequency of occurrence
+    # in descending order note this a list of tuples
+    # with (label, n_occurrences)
+    sorted_labels_occurrence = sorted(labels_occurrence_dict.items(), key=operator.itemgetter(1))
+    sorted_labels_occurrence.reverse()
+
+    return sorted_labels_occurrence
+    
 
 def recommend_champions_ranking(player_data, projection, clustering_obj, train_labels):
+    '''
+    '''
+
 
     # first project the data into the correct space
     projected_player_data = np.dot(player_data, np.transpose(projection))
 
+    # get the cluster labels on the training data
+    train_clusters = clustering_obj.labels_
+
     # assign clusters to each match we have of the player
     player_match_clusters = predict_cluster_labels(clustering_obj, projected_player_data)
 
-    # count occurrences for each cluster
-    unique_clusters = set(player_match_clusters)
-    cluster_occurrence_dict = dict(zip(unique_clusters, [0]*len(unique_clusters)))
-    for c in player_match_clusters:
-        cluster_occurrence_dict[c] += 1
-
-    # sort by frequency of occurrence
-    # in descending order note this a list of tuples
-    # with (cluster, n_occurrences)
-    sorted_cluster_occurrence = sorted(cluster_occurrence_dict.items(), key=operator.itemgetter(1))
-    sorted_cluster_occurrence.reverse()
+    # get a sorted list (descending order) of clusters and frequency of occurrence
+    sorted_cluster_occurrence = get_sorted_label_occurrences(player_match_clusters)
 
     # get most frequent cluster
     most_freq_cluster = sorted_cluster_occurrence[0][0]
 
-    # get training labels belonging to that cluster
-    # in the training data
-    train_clusters = clustering_obj.labels_
-    associated_train_labels = [train_labels[i] for i in range(len(train_clusters)) if train_clusters[i] == most_freq_cluster]
+    associated_train_labels = [train_labels[i] for i in range(len(train_labels)) if train_clusters[i] == most_freq_cluster]
 
-    # do a ranking of these labels by occurrence
-    unique_labels = set(associated_train_labels)
-    label_occurrence_dict = dict(zip(unique_labels, [0]*len(unique_labels)))
-    for l in associated_train_labels:
-        label_occurrence_dict[l] += 1
-    sorted_label_occurrence = sorted(label_occurrence_dict.items(), key=operator.itemgetter(1))
-    sorted_label_occurrence.reverse()
+    # get a sorted list (descending order) of training labels and frequency of occurrence
+    sorted_label_occurrence = get_sorted_label_occurrences(associated_train_labels)
 
+    # display in order of frequency as a recommendations for the player
     print "Rankings for recommended champions to play"
     for item in sorted_label_occurrence:
         print item[0], item[1]

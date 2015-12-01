@@ -1,5 +1,5 @@
 """
-Script to give recommendations to players
+Script to make player-specific recommendations
 
 authors : Rohit Bhattacharya, Azwad Sabik
 emails  : rohit.bhattachar@gmail.com, azwadsabik@gmail.com
@@ -28,7 +28,7 @@ def parse_arguements():
     parser = argparse.ArgumentParser(description=info)
 
     # program arguments
-    parser.add_argument('-X', '--train-data',
+    parser.add_argument('-T', '--train-data',
                         type=str, required=True,
                         help='Path to file containing original training data')
 
@@ -39,6 +39,10 @@ def parse_arguements():
     parser.add_argument('-M', '--match-data',
                         type=str, required=True,
                         help='Path to file containing match data of the player')
+
+    parser.add_argument('-C', '--clustering',
+                        type=str, required=True,
+                        help='Path to file containing affinity propagation clustering on training data')
 
     parser.add_argument('-o', '--output',
                        type=str, required=True,
@@ -56,16 +60,21 @@ def parse_arguements():
 # get the required arguements from
 # the user
 opts = parse_arguements()
-X_path = opts['X_data']
-preference_param = opts['preference_param']
+train_path = opts['train_data']
+labels_path = opts['Y_labels']
+player_matches_path = opts['match_data']
+clustering_path = opts['clustering']
 output_name = opts['output']
 pickle_name = opts['output_pickle']
 
 # load the pickles, load Y only if given
 train_data = pickle.load(open(train_data, 'rb'))
-Y = pickle.load(open(Y_path, 'rb'))
+train_labels = pickle.load(open(labels_path, 'rb'))
+player_data = pickle.load(open(labels_path, 'rb'))
+clustering = pick.load(open(clustering_path, 'rb'))
 
-n_samples, n_features = X.shape
+# assign clusters to each match we have of the player
+player_match_labels = clustering.fit_predict(player_data)
 
-
+print player_match_labels
 

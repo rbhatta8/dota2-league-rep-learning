@@ -33,6 +33,7 @@ def visualize3d(X, Y, output_name):
 
     # make a colour map that colours the points
     # based on their unique labels
+    print Y
     unique_labels = set(Y)
     num_unique_labels = len(unique_labels)
     unique_labels_dict = dict(zip(unique_labels, range(num_unique_labels)))
@@ -42,3 +43,5 @@ def visualize3d(X, Y, output_name):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter(X[:,0], X[:,1], X[:,2], c=colour_map)
+    plt.savefig(output_name)
+    plt.show()

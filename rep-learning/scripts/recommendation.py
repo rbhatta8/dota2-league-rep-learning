@@ -73,7 +73,6 @@ train_labels = pickle.load(open(labels_path, 'rb'))
 player_data = pickle.load(open(player_matches_path, 'rb'))
 clustering = pickle.load(open(clustering_path, 'rb'))
 
-player_data = player_data[:100, :]
 print train_data.shape
 print player_data.shape
 # assign clusters to each match we have of the player

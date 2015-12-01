@@ -90,7 +90,7 @@ print("Done. Reconstruction error: %g" % clf.reconstruction_error_)
 if Y_path:
     labels = Y
 else:
-    labels = [0]*n_samples
+    labels = np.ones((n_samples, 1))
 
 # do 2d visualization or 3d
 if arg_components == 2:

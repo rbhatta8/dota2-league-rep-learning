@@ -10,11 +10,10 @@ from time import time
 from sklearn import decomposition
 import pickle
 import numpy as np
-import matplotlib.pyplot as plt
 import random
 import sys
 import argparse
-from mpl_toolkits.mplot3d import Axes3D
+import visualization
 
 def parse_arguements():
     """
@@ -62,6 +61,7 @@ opts = parse_arguements()
 X_path = opts['X_data']
 Y_path = opts['Y_labels']
 output_name = opts['output']
+pickle_name = opts['output_pickle']
 arg_components = opts['num_components']
 
 # load the pickles, load Y only if given
@@ -77,39 +77,20 @@ print("Computing PCA representation")
 pca = decomposition.PCA(arg_components, whiten=True)
 X_pca = pca.fit(X).transform(X)
 
-# plot the labels only if given                                                                                                              
-
+# if we are given labels use them, otherwise initialize all
+# to be the same
 if Y_path:
-
-    # make a colour map that colours the points                                                                                              
-    # based on their unique labels
-    unique_labels = set(Y)
-    num_unique_labels = len(unique_labels)
-    unique_labels_dict = dict(zip(unique_labels, range(num_unique_labels)))
-    colour_map = [unique_labels_dict[l] for l in Y]
-
-    # plot using this colour map                     
-
-    '''
-    for i in range(len(Y)):
-        plt.text(X_lle[i, 0], X_lle[i, 1], Y[i],
-                 color=plt.cm.Set1(random.randint(1, 110)),
-                 fontdict={'weight': 'bold', 'size': 4})
-    '''
+    labels = Y
 else:
-    colour_map = np.ones((n_samples, 1))
+    labels = np.ones((n_samples, 1))
 
-
+# do 2d visualization or 3d
 if arg_components == 2:                                                                 
-    plt.scatter(X_pca[:,0], X_pca[:,1], c=colour_map)
+    visualization.visualize2d(X_pca, labels, output_name)
 
-else:
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(X_pca[:,0], X_pca[:,1], X_pca[:,2], c=colour_map)
+elif arg_components == 3:
+    visualization.visualize3d(X_pca, labels, output_name)
 
-# save the figure
-plt.savefig(output_name)
-plt.show()
 
 # save the PCA representation as a pickle
+pickle.dump(X_pca, open(pickle_name, 'wb'))

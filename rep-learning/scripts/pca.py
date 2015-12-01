@@ -82,7 +82,7 @@ X_pca = pca.fit(X).transform(X)
 if Y_path:
     labels = Y
 else:
-    labels = np.ones((n_samples, 1))
+    labels = [0]*n_samples
 
 # do 2d visualization or 3d
 if arg_components == 2:                                                                 

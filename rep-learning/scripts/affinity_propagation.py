@@ -62,7 +62,7 @@ if Y_path:
 n_samples, n_features = X.shape
 
 
-# Computing PCA representation
+# Computing affinity propagation clustering
 print("Clustering using affinity propagation")
 af = AffinityPropagation(preference=-10).fit(X)
 

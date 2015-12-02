@@ -24,9 +24,21 @@ clusteringLLE3d:
 	python rep-learning/scripts/lle.py -X league/pickles/X_relevant_stats_winners -o league/results/relevant_participant_stats_role_tag_winners_lle.png -nn 30 -Y league/pickles/tags_winners -op rep-learning/pickles/LLE_relevant_stats_winners_3d -nc 3
 	python rep-learning/scripts/affinity_propagation.py -X rep-learning/pickles/LLE_relevant_stats_winners_3d -o league/results/clustering_lle.png -p -50 -op rep-learning/pickles/AP_LLE_3d
 
-recommendationSystem:
+recommendationSystemAllPlayers:
 # then proceed with the recommendations
-	python rep-learning/scripts/recommendation.py -T league/pickles/X_relevant_stats_winners -Y league/pickles/champions_winners -M league/pickles/M_relevant_stats -C ../../Desktop/AP_PCA_3d_compressed -o league/results/whatever -op league/pickles/whatever -P rep-learning/pickles/PCA_relevant_stats_winners_3d_projection
+	python rep-learning/scripts/recommendation.py -T league/pickles/X_relevant_stats_winners -Y league/pickles/champions_winners -M league/pickles/M_relevant_stats_winners -C ../../Desktop/AP_PCA_3d_compressed -o league/results/whatever -op league/pickles/whatever -P rep-learning/pickles/PCA_relevant_stats_winners_3d_projection
+
+recommendationSystemC9Sneaky:
+# then proceed with the recommendations
+	python rep-learning/scripts/recommendation.py -T league/pickles/X_ -Y league/pickles/champions_winners -M league/pickles/C9\ Sneaky_relevant_stats_wins -C ../../Desktop/AP_PCA_3d_compressed -o league/results/whatever -op league/pickles/whatever -P rep-learning/pickles/PCA_relevant_stats_winners_3d_projection
+
+recommendationSystemJayJ:
+# then proceed with the recommendations
+	python rep-learning/scripts/recommendation.py -T league/pickles/X_relevant_stats_winners -Y league/pickles/champions_winners -M league/pickles/JayJ_relevant_stats_wins -C ../../Desktop/AP_PCA_3d_compressed -o league/results/whatever -op league/pickles/whatever -P rep-learning/pickles/PCA_relevant_stats_winners_3d_projection
+
+recommendationSystemJungleGuy:
+# then proceed with the recommendations
+	python rep-learning/scripts/recommendation.py -T league/pickles/X_relevant_stats_winners -Y league/pickles/champions_winners -M league/pickles/jungle\ is\ succes_relevant_stats_wins -C ../../Desktop/AP_PCA_3d_compressed -o league/results/whatever -op league/pickles/whatever -P rep-learning/pickles/PCA_relevant_stats_winners_3d_projection
 
 # Windows
 #python rep-learning\lle.py -X league\pickles\X_relevant_stats -o league\results\relevant_participant_stats_win_couloured_lle.png -nn 30 -Y league\pickles\wins

@@ -12,8 +12,13 @@ import visualization
 import argparse
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.cluster import AffinityPropagation
+from sklearn.cross_decomposition import PLSRegression
 import operator
-import regression
+import os
+
+SEGMENT_STATS = ['kills', 'deaths', 'assists', 'wards', 'towers', 'inhibitors',
+                 'gold', 'level', 'jungle_cs', 'cs', 'damage_taken', 'barons',
+                 'blues', 'reds', 'dragons', 'heralds']
 
 def parse_arguements():
     """
@@ -32,7 +37,7 @@ def parse_arguements():
     # program arguments
     parser.add_argument('-T', '--train-data',
                         type=str, required=True,
-                        help='Path to file containing original training data')
+                        help='Path and prefix for files containing training data')
 
     parser.add_argument('-Y', '--Y-labels',
                         type=str, required=True,
@@ -142,8 +147,70 @@ def get_sorted_label_occurrences(labels):
 
     return sorted_labels_occurrence
     
+def recommend_pls_strategy(player_data, train_data, projection, clustering_obj):
 
-def recommend_champions_ranking(player_data, projection, clustering_obj, train_labels):
+    ''' 
+    Recommends a ranking of champions a player should play
+    based on the players' match data provided and previously
+    clustered training data
+
+    Parameters:
+    ----------
+
+    player_data : 2d numpy array
+        match data of the player
+
+    train_data  : 2d numpy array
+        the original training data
+
+    projection  : 2d numpy array
+        projection matrix generated from a manifold learning technique
+
+    clustering_obj : sklearn object
+        an object that contains clustering information of the training data
+
+    train_labels : list
+        list of training labels that the recommendations will be based on
+
+    Returns:
+    --------
+
+    None : simply displays the recommendation
+    '''
+    
+    # first project the data into the correct space
+    projected_player_data = np.dot(player_data, np.transpose(projection))
+    
+    # get the cluster labels on the training data
+    train_clusters = clustering_obj.labels_
+
+    # assign clusters to each match we have of the player
+    player_match_clusters = predict_cluster_labels(clustering_obj, projected_player_data)
+
+    # get cluster to index mapping for training matches
+    training_matches_cluster_indices = clusters_to_indices(train_clusters)
+
+
+def visualize_s0_regression(s0_predictor, rs, s0):
+    # s0_predictor is a PLSRegression predictor object; rs is an entry from the X matrix input to the predictor; s0 is corresponding Y entry
+    s0_hat = np.round(s0_predictor.predict(rs), 0)
+    err = np.round(abs(s0 - s0_hat)/(s0+1)*100, 0)
+    out_str = ""
+    for i in range(len(SEGMENT_STATS)):
+        out_str += "{0}: {1} ({2}) [{3}% error]\n".format(SEGMENT_STATS[i], s0_hat[i], s0[i], err[i])
+    return out_str
+
+def visualize_s1_regression(s1_predictor, s0, s1):
+    # s1_predictor is a PLSRegression predictor object; s0 is an entry from the X matrix input to the predictor; s1 is corresponding Y entry
+    s1_hat = np.round(s1_predictor.predict(s0), 0)
+    err = np.round(abs(s1 - s1_hat)/(s1+1)*100, 0)
+    out_str = ""
+    for i in range(len(SEGMENT_STATS)):
+        out_str += "{0}: {3} --> {2} ({1}) [{4}% error]\n".format(SEGMENT_STATS[i], s1[i], s1_hat[i], s0[i], err[i])
+    return out_str
+
+
+def recommend_champions_ranking(player_data, train_data_end, train_data_s0, train_data_s1, projection, clustering_obj, train_labels):
     ''' 
     Recommends a ranking of champions a player should play
     based on the players' match data provided and previously
@@ -158,7 +225,7 @@ def recommend_champions_ranking(player_data, projection, clustering_obj, train_l
     projection  : 2d numpy array
         projection matrix generated from a manifold learning technique
 
-    clustering_obg : sklearn object
+    clustering_obj : sklearn object
         an object that contains clustering information of the training data
 
     train_labels : list
@@ -184,6 +251,7 @@ def recommend_champions_ranking(player_data, projection, clustering_obj, train_l
 
     # get most frequent cluster
     most_freq_cluster = sorted_cluster_occurrence[0][0]
+    print "Most frequent cluster", most_freq_cluster
 
     associated_train_labels = [train_labels[i] for i in range(len(train_labels)) if train_clusters[i] == most_freq_cluster]
 
@@ -195,6 +263,36 @@ def recommend_champions_ranking(player_data, projection, clustering_obj, train_l
     for item in sorted_label_occurrence:
         print item[0], item[1]
 
+    # get cluster to index mapping for training matches
+    training_matches_cluster_indices = clusters_to_indices(train_clusters)
+
+    # get indices for the most frequent cluster
+    match_indices_most_freq_cluster = training_matches_cluster_indices[most_freq_cluster]
+    
+    # form the matrices for regression
+    regress_end_stats = train_data_end[match_indices_most_freq_cluster]
+    regress_s0 = train_data_s0[match_indices_most_freq_cluster]
+    regress_s1 = train_data_s1[match_indices_most_freq_cluster]
+
+    # fit PLSRegress predictors for s0 and s1
+    PLS_s0 = PLSRegression(n_components = 3)
+    PLS_s1 = PLSRegression(n_components = 3)
+    s0_predictor = PLS_s0.fit(regress_end_stats, regress_s0)
+    s1_predictor = PLS_s1.fit(regress_s0, regress_s1)
+
+    # for visualization of regression, choose [0-th] match instance from cluster
+    rs = regress_end_stats[0, :]
+    s0 = regress_s0[0, :]
+    s1 = regress_s1[0, :]
+
+    # visualize
+    print "s0 Prediction"
+    print visualize_s0_regression(s0_predictor, rs, s0)
+    print "s1 Prediction"
+    print visualize_s1_regression(s1_predictor, s0, s1)
+
+    
+                        
 
 def main():
 
@@ -210,14 +308,16 @@ def main():
     pickle_name = opts['output_pickle']
 
     # load the pickles
-    train_data = pickle.load(open(train_path, 'rb'))
+    train_data_end = pickle.load(open(train_path + "_relevant_stats_winners", 'rb'))
+    train_data_s0 = pickle.load(open(train_path + "_segment_0_stats_winners", 'rb'))
+    train_data_s1 = pickle.load(open(train_path + "_segment_1_stats_winners", 'rb'))
     train_labels = pickle.load(open(labels_path, 'rb'))
     player_data = pickle.load(open(player_matches_path, 'rb'))
     clustering = pickle.load(open(clustering_path, 'rb'))
     projection = pickle.load(open(projection_path, 'rb'))
 
-    #print clusters_to_indices(clustering.labels_)
-    recommend_champions_ranking(player_data, projection, clustering, train_labels)
+    recommend_champions_ranking(player_data, train_data_end, train_data_s0, train_data_s1, projection, clustering, train_labels)
+    #recommend_pls_strategy(player_data, train_data, projection, clustering)
 
 main()
 

@@ -12,7 +12,7 @@ import vectorize
 
 #SUMMONER_NAME = 'C9 Sneaky'
 #SUMMONER_NAME = 'JayJ'
-SUMMONER_NAME = 'jungle is succes'
+SUMMONER_NAME = 'jungle is success'
 NUMBER_OF_MATCHES = 5
 
 if __name__ == "__main__":    

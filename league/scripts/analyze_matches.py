@@ -234,7 +234,7 @@ def generate_X_relevant_stats(match_details, winners=False):
                             for participant in participant_objects]))
     fn = 'X_relevant_stats'
     fn = fn + '_winners' if winners else fn
-    with open(os.path.join('..', 'pickles', fn), 'w') as v:
+    with open(os.path.join('..', 'pickles', fn), 'wb') as v:
         X_relevant_stats.dump(v)
     return X_relevant_stats
     
@@ -244,7 +244,7 @@ def generate_M_relevant_stats(match_details, winners=False):
                             for participant in participant_objects]))
     fn = 'M_relevant_stats'
     fn = fn + '_winners' if winners else fn
-    with open(os.path.join('..', 'pickles', fn), 'w') as v:
+    with open(os.path.join('..', 'pickles', fn), 'wb') as v:
         M_relevant_stats.dump(v)
     return M_relevant_stats    
     
@@ -349,4 +349,5 @@ if __name__ == "__main__":
 #    M_relevant_stats_winners = generate_M_relevant_stats(single_player_matches, winners=True)
 #    M_segment_0_winners = generate_X_segment_stats(single_player_matches, 0)
 #    M_segment_1_winners = generate_X_segment_stats(single_player_matches, 1)
+
     

@@ -71,7 +71,7 @@ def retrieve_player_matches(player_name):
     matches = lol.get_match_list(summoner_id)['matches']
     return matches
             
-def retrieve_match_details(match=None, ):
+def retrieve_match_details():
     lol = get_active_handle()
     # get match id
     match_id = match['matchId']

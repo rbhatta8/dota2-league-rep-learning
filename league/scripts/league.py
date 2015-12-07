@@ -7,6 +7,7 @@ Module containing classes for league objects
 """
 
 import numpy as np
+from data import load
 
 ENDGAME_PARTICIPANT_STATS = ['assists', 'champLevel', 'deaths', 'doubleKills', 
                                 'goldEarned', 'goldSpent', 'inhibitorKills', 
@@ -41,7 +42,23 @@ SEGMENTS = ['zeroToTen', 'tenToTwenty', 'twentyToThirty', 'thirtyToEnd']
 SEGMENT_STATS = ['kills', 'deaths', 'assists', 'wards', 'towers', 'inhibitors', 
                  'gold', 'level', 'jungle_cs', 'cs', 'damage_taken', 'barons', 
                  'blues', 'reds', 'dragons', 'heralds']
-                 
+           
+champion_id_by_name = load('champion_id_by_name')
+champion_data = load('champion_data')
+           
+class Champion:
+    def __init__(self, championId):
+        self.data = champion_data[str(championId)]
+        self.name = self.data['name']
+        self.stats = self.data['stats']
+        self.tags = self.data['tags']
+    def stats_vector(self):
+        vec = np.zeros((1, len(self.stats)))
+        stats_keys = self.stats.keys() 
+        for i in range(len(self.stats)):
+            vec[0, i] = self.stats[stats_keys[i]]
+        return vec  
+    
 class Match:
     def __init__(self, match):
         self.match = match
@@ -97,6 +114,7 @@ class Participant:
     def __init__(self, participant, match_obj):
         self.participantId = participant['participantId']
         self.championId = participant['championId']
+        self.champion = Champion(self.championId)
         self.stats = participant['stats']
         self.timeline = participant['timeline']
         self.frame_interval = match_obj.frame_interval

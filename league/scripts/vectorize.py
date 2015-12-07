@@ -48,3 +48,12 @@ def generate_lane_labels(participant_objects):
 def generate_win_labels(participant_objects):
     wins = [participant_obj.winner for participant_obj in participant_objects]
     return wins
+    
+def generate_champion_name_labels(participant_objects):
+    champion_names = [participant_obj.champion.name for participant_obj in participant_objects]
+    return champion_names
+    
+def generate_champion_primary_tag_labels(participant_objects):
+    tags = [participant_obj.champion.tags[0] for participant_obj in participant_objects]
+    return tags        
+    

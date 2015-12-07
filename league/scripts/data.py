@@ -43,7 +43,7 @@ class Retriever:
         for key in self.keys:
             with open(os.path.join(KEYS_DIR, key), 'r') as fp:
                 self.handles.append(RW(fp.read().strip()))
-        self.current_handle_index = random.randint(0, len(self.keys))
+        self.current_handle_index = random.randint(0, len(self.keys) - 1)
     def get_active_handle(self):
         time.sleep(REQUEST_DELAY)
         self.current_handle_index += 1
@@ -58,6 +58,20 @@ class Retriever:
                 self.current_handle_index += 1
                 self.current_handle_index %= len(self.handles)
         return active_handle
+    def retrieve_champion_id_by_name(self):
+        lol = self.get_active_handle()
+        info = lol.static_get_champion_list()
+        champions = info['data']
+        names = champions.keys()
+        ids = [champion['id'] for champion in champions.values()]
+        champion_id_by_name = dict(zip(names, ids))
+        return champion_id_by_name
+    def retrieve_champion_data(self):
+        lol = self.get_active_handle()
+        info = lol.static_get_champion_list(data_by_id = True, 
+                                                     champ_data = 'all')
+        champion_data = info['data']
+        return champion_data
     def retrieve_challenger_player_names(self):
         lol = self.get_active_handle()
         player_names = []

@@ -10,14 +10,10 @@ numpy arrays representing the participant data (for recent matches)
 import data
 import vectorize
 
-#SUMMONER_NAME = 'C9 Sneaky'
-#SUMMONER_NAME = 'JayJ'
-SUMMONER_NAME = 'jungle is succes'
+SUMMONER_NAME = 'C9 Sneaky'
 NUMBER_OF_MATCHES = 5
 
 if __name__ == "__main__":    
-
-    # yay comments
     r = data.Retriever()
     md = r.retrieve_player_match_details(SUMMONER_NAME, NUMBER_OF_MATCHES)
     data.save(md, SUMMONER_NAME + '_match_details_dict')
